@@ -86,7 +86,7 @@ app.get('/flushDB', function (req, res) {
         player.buhgolts = 0;
         player.playWith = [];
 
-        Person.where({_id: player._id}).update(player);
+        Person.where({_id: player._id}).update(player, function(err, data) { if (err) console.log(err); });
     });
 
     _.forEach(groups, function (group) {
@@ -96,6 +96,8 @@ app.get('/flushDB', function (req, res) {
                 console.log(err);
         });
     });
+
+    errorMessage = '';
 
     res.redirect('/listPlayers');
 });
@@ -185,30 +187,31 @@ app.get('/listPlayersGroups', function (req, res) {
 
         var teamsIds = groupTmp.group;
 
-        var group = _.map(teamsIds, function(personId) {
+        var group = {
+            persons: _.map(teamsIds, function(personId) {
 
-            var person = _.find(listPlayers, {id: personId});
+                var person = _.find(listPlayers, {id: personId});
 
-            var opponetId = _.head(_.difference(teamsIds, [person.id]));
-            if (opponetId) {
+                var opponetId = _.head(_.difference(teamsIds, [person.id]));
+                if (opponetId) {
 
-                var gameResult = _.find(person.gamesResults, {opponent: opponetId});
-                if (gameResult) {
-                    person.points = '('+gameResult.points+')';
-                    person.isWinner = gameResult.points > gameResult.opponentPoints;
-                    person.isLooser = gameResult.points < gameResult.opponentPoints;
-                } else {
-                    person.points = '';
-                    person.isWinner = false;
-                    person.isLooser = false;
+                    var gameResult = _.find(person.gamesResults, {opponent: opponetId});
+                    if (gameResult) {
+                        person.pointsString = '(' + gameResult.points + ')';
+                        person.isWinner = gameResult.points > gameResult.opponentPoints;
+                        person.isLooser = gameResult.points < gameResult.opponentPoints;
+                    } else {
+                        person.pointsString = '';
+                        person.isWinner = false;
+                        person.isLooser = false;
+                    }
                 }
-            }
 
-            return person;
+                return person;
 
-        });
-
-        group.teamsIds = teamsIds;
+            }),
+            teamsIds: teamsIds
+        };
 
         return group;
     });
@@ -228,30 +231,31 @@ app.get('/listPlayersGroupsEdit', function (req, res) {
 
         var teamsIds = groupTmp.group;
 
-        var group = _.map(teamsIds, function(personId) {
+        var group = {
+            persons: _.map(teamsIds, function(personId) {
 
-            var person = _.find(listPlayers, {id: personId});
+                var person = _.find(listPlayers, {id: personId});
 
-            var opponetId = _.head(_.difference(teamsIds, [person.id]));
-            if (opponetId) {
+                var opponetId = _.head(_.difference(teamsIds, [person.id]));
+                if (opponetId) {
 
-                var gameResult = _.find(person.gamesResults, {opponent: opponetId});
-                if (gameResult) {
-                    person.points = '('+gameResult.points+')';
-                    person.isWinner = gameResult.points > gameResult.opponentPoints;
-                    person.isLooser = gameResult.points < gameResult.opponentPoints;
-                } else {
-                    person.points = '';
-                    person.isWinner = false;
-                    person.isLooser = false;
+                    var gameResult = _.find(person.gamesResults, {opponent: opponetId});
+                    if (gameResult) {
+                        person.pointsString = '(' + gameResult.points + ')';
+                        person.isWinner = gameResult.points > gameResult.opponentPoints;
+                        person.isLooser = gameResult.points < gameResult.opponentPoints;
+                    } else {
+                        person.pointsString = '';
+                        person.isWinner = false;
+                        person.isLooser = false;
+                    }
                 }
-            }
 
-            return person;
+                return person;
 
-        });
-
-        group.teamsIds = teamsIds;
+            }),
+            teamsIds: teamsIds
+        };
 
         return group;
     });
@@ -348,20 +352,35 @@ app.get('/random', function (req, res) {
         });
     });
 
-    groups = _.map(treeChoises(listPlayers, 1), function (group) {
-        var groupModel = new Group();
-        groupModel.group = group;
-        Group.create(groupModel);
-        return {group: group};
-    });
-    if (_.size(groups) === 0)
-        errorMessage = 'We don\'t have any options for make teams.';
+    groups = [];
 
-    _.forEach(listPlayers, function (player) {
-        Person.where({_id: player._id}).update(player);
+    var groupList = treeChoises(listPlayers, 1);
+    Promise.all(_.map(groupList, function(group) {
+
+        return new Promise(function (res, reg) {
+
+            var groupModel = new Group();
+            groupModel.group = group;
+            Group.create(groupModel, function (err, data) {
+                groups.push(data);
+                res(data);
+            });
+
+        });
+
+    })).then(function() {
+
+        if (_.size(groupList) === 0)
+            errorMessage = 'We don\'t have any options for make teams.';
+
+        _.forEach(listPlayers, function (player) {
+            Person.where({_id: player._id}).update(player, function(err, data) { if (err) console.log(err); });
+        });
+
+        res.redirect('listPlayersGroups');
+
     });
 
-    res.redirect('listPlayersGroups');
 });
 
 app.get('/enterResult', function (req, res) {
@@ -373,30 +392,32 @@ app.post('/enterResult', function (req, res) {
     var teamA = _.find(listPlayers, {id: req.body.teamAId});
     var teamB = _.find(listPlayers, {id: req.body.teamBId});
 
-    if (teamA.gamesResults.length === teamA.playWith.length)
+    if (teamA.gamesResults.length === teamA.playWith.length) {
         teamA.gamesResults.pop();
+    }
 
-    if (teamB.gamesResults.length === teamB.playWith.length)
+    if (teamB.gamesResults.length === teamB.playWith.length) {
         teamB.gamesResults.pop();
+    }
 
     teamA.gamesResults.push({
-        points: +req.body.teamA,
-        opponentPoints: +req.body.teamB,
+        points: _.toNumber(req.body.teamA),
+        opponentPoints: _.toNumber(req.body.teamB),
         opponent: teamB.id,
         opponentFirstName: teamB.firstName,
         opponentLastName: teamB.lastName,
     });
 
     teamB.gamesResults.push({
-        points: +req.body.teamB,
-        opponentPoints: +req.body.teamA,
+        points: _.toNumber(req.body.teamB),
+        opponentPoints: _.toNumber(req.body.teamA),
         opponent: teamA.id,
         opponentFirstName: teamA.firstName,
         opponentLastName: teamA.lastName,
     });
 
-    Person.where({_id: teamA._id}).update(teamA);
-    Person.where({_id: teamB._id}).update(teamB);
+    Person.where({_id: teamA._id}).update(teamA, function(err, data) { if (err) console.log(err); });
+    Person.where({_id: teamB._id}).update(teamB, function(err, data) { if (err) console.log(err); });
 
     res.redirect('listPlayersGroups');
 });

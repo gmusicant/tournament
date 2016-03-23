@@ -12,12 +12,12 @@
     <% } %>
     <div class="col-sm-4 rounded text-center">
         <span class="clearfix">Field #<%= key+1 %></span>
-        <span class="rounded-no-border <%= ((group[0].isWinner) ? 'bg-success' : '') %> <%= ((group[0].isLooser) ? 'bg-danger' : '') %>">
-            <%= group[0].firstName %> <%= group[0].lastName[0] %>. <%= group[0].points %>
+        <span class="rounded-no-border <%= ((group.persons[0].isWinner) ? 'bg-success' : '') %> <%= ((group.persons[0].isLooser) ? 'bg-danger' : '') %>">
+            <%= group.persons[0].firstName %> <%= group.persons[0].lastName[0] %>. <%= group.persons[0].pointsString %>
         </span>
         VS
-        <span class="rounded-no-border <%= ((group[1].isWinner) ? 'bg-success' : '') %> <%= ((group[1].isLooser) ? 'bg-danger' : '') %>">
-            <%= group[1].firstName %> <%= group[1].lastName[0] %>. <%= group[1].points %>
+        <span class="rounded-no-border <%= ((group.persons[1].isWinner) ? 'bg-success' : '') %> <%= ((group.persons[1].isLooser) ? 'bg-danger' : '') %>">
+            <%= group.persons[1].firstName %> <%= group.persons[1].lastName[0] %>. <%= group.persons[1].pointsString %>
         </span>
     </div>
     <% if (isEditMode) { %>
