@@ -1,0 +1,63 @@
+<%- include('header') %>
+<h2>Players list</h2>
+<% if (isEditMode) { %>
+<a href="/addPlayer" class="btn btn-success">Add player</a>
+<% } %>
+<a href="/listPlayersGroups" class="btn btn-info">To the game board &gt;&gt;</a>
+<br/>
+<br/>
+
+<table class="table table-striped">
+<thead>
+<tr>
+    <th>#</th>
+    <% if (isSuperEdit) { %>
+    <th>action</th>
+    <% } %>
+    <th>firstName lastName</th>
+    <th>wins</th>
+    <th>buhgolts</th>
+    <th>points</th>
+    <th>games played</th>
+    <% for(var i = 0; i < gamePlayed; i++) { %>
+        <th>Game <%= i+1 %> result</th>
+    <% } %>
+</tr>
+</thead>
+<tbody class="table-striped">
+<% people.forEach(function(person, num) { %>
+<tr>
+
+    <td><%= num+1 %></td>
+    <% if (isSuperEdit) { %>
+        <td><a href="/deletePlayer/<%= person.id %>" class="btn btn-danger">delete</a></td>
+    <% } %>
+    <td><%= person.firstName %> <%= person.lastName %></td>
+    <td><%= person.wins %></td>
+    <td><%= person.buhgolts %></td>
+    <td><%= person.points %></td>
+    <td><%= person.gamesResults.length %></td>
+
+    <% person.gamesResults.forEach(function(gameResult) { %>
+    <td class="text-<%= (gameResult.points - gameResult.opponentPoints) > 0 ? 'success' : 'danger' %>"> <span data-toggle="tooltip" data-placement="top" title="<%= gameResult.opponentFirstName %> <%= gameResult.opponentLastName %>"> <%= gameResult.points %>/<%= gameResult.opponentPoints %> (<%= (((gameResult.points - gameResult.opponentPoints) > 0) ? '+':'') + (gameResult.points - gameResult.opponentPoints) %>)</span></td>
+    <% }); %>
+
+    <% for(var i = 0; i < gamePlayed - person.gamesResults.length; i++) { %>
+        <td></td>
+    <% } %>
+
+
+</tr>
+<% }); %>
+</tbody>
+</table>
+<% if (isEditMode) { %>
+    <a
+        href="/random"
+        class="btn btn-warning"
+        <% if (!allGamesScored) { %>
+            onClick="return confirm('Not all games have scores. Do you want to continue ?'); "
+        <% }; %>
+    >Start game with shuffle users</a>
+<% } %>
+<%- include('footer') %>

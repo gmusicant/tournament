@@ -1,0 +1,28 @@
+</div>
+<div id="timer" class="text-center"></div>
+
+<script>
+
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})
+
+var time = new Date('<%= timer %>');
+function startTime() {
+    var today = new Date();
+    var timeDifference = new Date(today - time);
+    var m = timeDifference.getMinutes();
+    var s = timeDifference.getSeconds();
+    m = checkTime(m);
+    s = checkTime(s);
+    $('#timer').html("Round time: " + m + ":" + s);
+    var t = setTimeout(startTime, 500);
+}
+function checkTime(i) {
+    if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10
+    return i;
+}
+startTime();
+</script>
+</body>
+</html>

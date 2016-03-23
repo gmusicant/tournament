@@ -1,0 +1,41 @@
+<%- include('header') %>
+<h2>Add result</h2>
+<div class="row">
+    <form action="/enterResult" method="post">
+        <div class="form-group col-xs-4">
+            <label for="teamA" ><%= teamA.firstName %> <%= teamA.lastName %><span id="scoreTeamA"></span></label>
+            <br/>
+            <input type="hidden" name="teamAId" value="<%= teamA.id %>">
+            <input id="teamA" name="teamA" data-slider-id='ex1Slider' type="text" data-slider-min="0" data-slider-max="13" data-slider-step="1" data-slider-value="0"/><br/><br/>
+            <label for="teamB"><%= teamB.firstName %> <%= teamB.lastName %><span id="scoreTeamB"></span></label>
+            <br/>
+            <input type="hidden" name="teamBId" value="<%= teamB.id %>">
+            <input id="teamB" name="teamB" data-slider-id='ex2Slider' type="text" data-slider-min="0" data-slider-max="13" data-slider-step="1" data-slider-value="0"/><br/>
+            <br/>
+            <div class="pull-left">
+                <a href="/listPlayersGroups" class="btn btn-danger">Back</a>
+            </div>
+            <div class="pull-right">
+                <input type="submit" value="go"  class="btn btn-success">
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+
+$('#teamA').slider({
+    formatter: function(value) {
+        $('#scoreTeamA').html('(' + value + ')');
+        return 'Current value: ' + value;
+    }
+});
+
+$('#teamB').slider({
+    formatter: function(value) {
+        $('#scoreTeamB').html('(' + value + ')');
+        return 'Current value: ' + value;
+    }
+});
+
+</script>
+<%- include('footer') %>

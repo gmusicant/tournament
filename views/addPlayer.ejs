@@ -1,0 +1,22 @@
+<%- include('header') %>
+<h2>Add user</h2>
+<div class="row">
+    <form action="/addPlayer" method="post">
+        <div class="form-group col-xs-4">
+            <label for="firstName" >first name</label>
+            <br/>
+            <input id="firstName" type="text" name="firstName" class="form-control"><br/>
+            <label for="lastName">last name</label>
+            <br/>
+            <input id="lastName" type="text" name="lastName" class="form-control">
+            <br/>
+            <div class="pull-left">
+                <a href="/listPlayers" class="btn btn-danger">Back</a>
+            </div>
+            <div class="pull-right">
+                <input type="submit" value="go" class="btn btn-success ">
+            </div>
+        </div>
+    </form>
+</div>
+<%- include('footer') %>
