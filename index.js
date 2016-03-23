@@ -25,6 +25,7 @@ var groups = loadDB(DB_COLLECTION_GROUPS);
 
 /* pre configure */
 
+app.set('port', (process.env.PORT || 5000));
 app.set('view engine', 'ejs');
 app.use(bodyParser.json());       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
@@ -338,6 +339,6 @@ app.post('/enterResult', function (req, res) {
 
 /* server run */
 
-app.listen(443, function () {
-    console.log('Example app listening on port 3000!');
+app.listen(app.get('port'), function () {
+    console.log('Example app listening on port ' + app.get('port') + '!');
 });
