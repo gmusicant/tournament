@@ -28,7 +28,7 @@ function treeChoises(collection, level, isReadOnly) {
                             groups = subGroups;
                             firstElement.playWith.push(nextElement.id);
                             nextElement.playWith.push(firstElement.id);
-                            groups.push([firstElement, nextElement]);
+                            groups.push([firstElement.id, nextElement.id]);
                             isCompleted = true;
 
                         }
@@ -36,7 +36,7 @@ function treeChoises(collection, level, isReadOnly) {
                     } else {
                         firstElement.playWith.push(nextElement.id);
                         nextElement.playWith.push(firstElement.id);
-                        groups.push([firstElement, nextElement]);
+                        groups.push([firstElement.id, nextElement.id]);
                         isCompleted = true;
                     }
 
@@ -49,16 +49,6 @@ function treeChoises(collection, level, isReadOnly) {
         return groups;
     }
 
-    function saveDB(DB_PATH, DB_COLLECTION_NAME, variable) {
-        fs.writeFileSync(DB_PATH + DB_COLLECTION_NAME + '.json', JSON.stringify(variable), 'utf-8');
-    }
-
-    function loadDB(DB_PATH, DB_COLLECTION_NAME) {
-        return JSON.parse(fs.readFileSync(DB_PATH + DB_COLLECTION_NAME + '.json', 'utf-8'));
-    }
-
 exports = module.exports = {
-    treeChoises: treeChoises,
-    saveDB: saveDB,
-    loadDB: loadDB
+    treeChoises: treeChoises
 }

@@ -3,6 +3,9 @@
 var DB_PATH = './db/';
 var DB_COLLECTION_TEAMS = 'teams';
 var DB_COLLECTION_GROUPS = 'groups';
+var DB_USERNAME = process.env.DB_USERNAME || require('./constants').DB_USERNAME;
+var DB_PASSWORD = process.env.DB_PASSWORD || require('./constants').DB_PASSWORD;
+var DB_URI = 'mongodb://'+ DB_USERNAME +':'+ DB_PASSWORD +'@ds013559.mlab.com:13559/tornament';
 
 /* libraries */
 
@@ -12,16 +15,41 @@ var bodyParser = require('body-parser')
 var _ = require('lodash');
 var cookieParser = require('cookie-parser')
 var treeChoises = require('./helpers/functions').treeChoises;
-var saveDB = require('./helpers/functions').saveDB.bind(null, DB_PATH);
-var loadDB = require('./helpers/functions').loadDB.bind(null, DB_PATH);
+var mongoose = require('mongoose');
 
 /* global variables */
 
 var app = express();
 var timer = new Date();
 var errorMessage = '';
-var listPlayers = loadDB(DB_COLLECTION_TEAMS);
-var groups = loadDB(DB_COLLECTION_GROUPS);
+var listPlayers;
+var groups;
+
+/* db connect and schema */
+
+var db = mongoose.connect(DB_URI);
+
+var Person = mongoose.model('Person', {
+    firstName: String,
+    lastName: String,
+    playWith: Array,
+    gamesResults: [{
+        points: Number,
+        opponentPoints: Number,
+        opponent: String,
+        opponentFirstName: String,
+        opponentLastName: String,
+    }],
+    points: Number,
+    wins: Number,
+    buhgolts: Number,
+    isWinner: Boolean,
+    isLooser: Boolean
+});
+
+var Group = mongoose.model('Group', {
+    group: Array
+});
 
 /* pre configure */
 
@@ -57,10 +85,18 @@ app.get('/flushDB', function (req, res) {
         player.wins = 0;
         player.buhgolts = 0;
         player.playWith = [];
+
+        Person.where({_id: player._id}).update(player);
     });
-    saveDB(DB_COLLECTION_TEAMS, listPlayers);
-    groups = [];
-    saveDB(DB_COLLECTION_GROUPS, groups);
+
+    _.forEach(groups, function (group) {
+        var group = new Group(group);
+        group.remove(function (err, product) {
+            if (err)
+                console.log(err);
+        });
+    });
+
     res.redirect('/listPlayers');
 });
 
@@ -145,17 +181,18 @@ app.get('/listPlayersEdit', function (req, res) {
 
 app.get('/listPlayersGroups', function (req, res) {
 
-    groups = _.map(groups, function (group) {
+    var groupedTeams = _.map(groups, function (groupTmp) {
 
-        var teamsIds = _.map(group, 'id');
-        group = _.map(group, function(person) {
+        var teamsIds = groupTmp.group;
 
-            person = _.find(listPlayers, {id: person.id});
+        var group = _.map(teamsIds, function(personId) {
 
-            var opponetId = _.head(_.difference(teamsIds, [+person.id]));
+            var person = _.find(listPlayers, {id: personId});
+
+            var opponetId = _.head(_.difference(teamsIds, [person.id]));
             if (opponetId) {
 
-                var gameResult = _.find(person.gamesResults, {opponent: +opponetId});
+                var gameResult = _.find(person.gamesResults, {opponent: opponetId});
                 if (gameResult) {
                     person.points = '('+gameResult.points+')';
                     person.isWinner = gameResult.points > gameResult.opponentPoints;
@@ -178,7 +215,7 @@ app.get('/listPlayersGroups', function (req, res) {
 
     var isEditMode = req.cookies.user && req.cookies.user.type === 'admin';
 
-    res.render('listPlayersGroups', {groups: groups, errorMessage: errorMessage, timer: timer, isEditMode: isEditMode});
+    res.render('listPlayersGroups', {groups: groupedTeams, errorMessage: errorMessage, timer: timer, isEditMode: isEditMode});
 });
 
 app.get('/listPlayersGroups/edit', function (req, res) {
@@ -187,17 +224,18 @@ app.get('/listPlayersGroups/edit', function (req, res) {
 
 app.get('/listPlayersGroupsEdit', function (req, res) {
 
-    groups = _.map(groups, function (group) {
+    var groupedTeams = _.map(groups, function (groupTmp) {
 
-        var teamsIds = _.map(group, 'id');
-        group = _.map(group, function(person) {
+        var teamsIds = groupTmp.group;
 
-            person = _.find(listPlayers, {id: person.id});
+        var group = _.map(teamsIds, function(personId) {
 
-            var opponetId = _.head(_.difference(teamsIds, [+person.id]));
+            var person = _.find(listPlayers, {id: personId});
+
+            var opponetId = _.head(_.difference(teamsIds, [person.id]));
             if (opponetId) {
 
-                var gameResult = _.find(person.gamesResults, {opponent: +opponetId});
+                var gameResult = _.find(person.gamesResults, {opponent: opponetId});
                 if (gameResult) {
                     person.points = '('+gameResult.points+')';
                     person.isWinner = gameResult.points > gameResult.opponentPoints;
@@ -227,26 +265,38 @@ app.get('/addPlayer', function (req, res) {
 
 app.post('/addPlayer', function (req, res) {
 
-    listPlayers.push({
-        id: listPlayers.length + 1,
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        playWith: [],
-        gamesResults: []
+    var person = new Person();
+    person.firstName = req.body.firstName;
+    person.lastName = req.body.lastName;
+    person.playWith = [];
+    person.gamesResults = [];
+
+    Person.create(person, function(err, data) {
+        if (err)
+            console.log(err);
+        else
+            listPlayers.push(data);
+        res.redirect('listPlayers');
     });
 
-    saveDB(DB_COLLECTION_TEAMS, listPlayers);
-
-    res.redirect('listPlayers');
 });
 
 app.get('/deletePlayer/:playerId', function (req, res) {
 
     _.remove(listPlayers, function (player) {
-        return +req.params.playerId === +player.id;
-    });
 
-    saveDB(DB_COLLECTION_TEAMS, listPlayers);
+        if (req.params.playerId === player.id) {
+
+            var person = new Person(player);
+            person.remove(function (err, product) {
+                if (err)
+                    console.log(err);
+            });
+
+            return true;
+        }
+        return false;
+    });
 
     res.redirect('/listPlayers');
 });
@@ -290,24 +340,38 @@ app.get('/random', function (req, res) {
 
     listPlayers = _.orderBy(listPlayers, ['points', 'buhgolts', 'wins']);
 
-    groups = treeChoises(listPlayers, 1);
+    _.forEach(groups, function (group) {
+        var group = new Group(group);
+        group.remove(function (err, product) {
+            if (err)
+                console.log(err);
+        });
+    });
+
+    groups = _.map(treeChoises(listPlayers, 1), function (group) {
+        var groupModel = new Group();
+        groupModel.group = group;
+        Group.create(groupModel);
+        return {group: group};
+    });
     if (_.size(groups) === 0)
         errorMessage = 'We don\'t have any options for make teams.';
 
-    saveDB(DB_COLLECTION_TEAMS, listPlayers);
-    saveDB(DB_COLLECTION_GROUPS, groups);
+    _.forEach(listPlayers, function (player) {
+        Person.where({_id: player._id}).update(player);
+    });
 
     res.redirect('listPlayersGroups');
 });
 
 app.get('/enterResult', function (req, res) {
-    res.render('enterResult', {teamA: _.find(listPlayers, {id: +req.query.teamAId}), teamB: _.find(listPlayers, {id: +req.query.teamBId}), timer: timer});
+    res.render('enterResult', {teamA: _.find(listPlayers, {id: req.query.teamAId}), teamB: _.find(listPlayers, {id: req.query.teamBId}), timer: timer});
 });
 
 app.post('/enterResult', function (req, res) {
 
-    var teamA = _.find(listPlayers, {id: +req.body.teamAId});
-    var teamB = _.find(listPlayers, {id: +req.body.teamBId});
+    var teamA = _.find(listPlayers, {id: req.body.teamAId});
+    var teamB = _.find(listPlayers, {id: req.body.teamBId});
 
     if (teamA.gamesResults.length === teamA.playWith.length)
         teamA.gamesResults.pop();
@@ -326,19 +390,43 @@ app.post('/enterResult', function (req, res) {
     teamB.gamesResults.push({
         points: +req.body.teamB,
         opponentPoints: +req.body.teamA,
-        opponent: +req.body.teamAId,
+        opponent: teamA.id,
         opponentFirstName: teamA.firstName,
         opponentLastName: teamA.lastName,
     });
 
-    saveDB(DB_COLLECTION_TEAMS, listPlayers);
-    saveDB(DB_COLLECTION_GROUPS, groups);
+    Person.where({_id: teamA._id}).update(teamA);
+    Person.where({_id: teamB._id}).update(teamB);
 
     res.redirect('listPlayersGroups');
 });
 
 /* server run */
 
-app.listen(app.get('port'), function () {
-    console.log('Example app listening on port ' + app.get('port') + '!');
+Person.find(function(err, people) {
+
+    if (!err) {
+
+        listPlayers = people;
+
+        Group.find(function(err, groupsIncome) {
+
+            if (!err) {
+
+                groups = groupsIncome;
+
+                app.listen(app.get('port'), function () {
+                    console.log('Example app listening on port ' + app.get('port') + '!');
+                });
+
+            } else {
+                console.log(err);
+            }
+
+        });
+
+    } else {
+        console.log(err);
+    }
+
 });
