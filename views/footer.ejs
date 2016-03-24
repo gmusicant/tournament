@@ -7,10 +7,11 @@ $(function () {
   $('[data-toggle="tooltip"]').tooltip()
 })
 
-var time = new Date('<%= timer %>');
+var currentTime = new Date();
+var timeDiff = <%= timer %>;
 function startTime() {
     var today = new Date();
-    var timeDifference = new Date(today - time);
+    var timeDifference = new Date(today.getTime() - currentTime.getTime() + timeDiff);
     var m = timeDifference.getMinutes();
     var s = timeDifference.getSeconds();
     m = checkTime(m);
