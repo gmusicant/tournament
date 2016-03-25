@@ -56,6 +56,7 @@ app.get('/logout', function (req, res) {
 });
 
 app.get('/flushDB', function (req, res) {
+    errorMessage = '';
     teamModel.getAll().then(function (people) {
         _.forEach(people, function(player) {
             teamModel.update(player.id, {
@@ -356,7 +357,7 @@ app.get('/random', function (req, res) {
 
         listPlayers = _.shuffle(listPlayers);
 
-        listPlayers = _.orderBy(listPlayers, ['points', 'buhgolts', 'wins']);
+        listPlayers = _.orderBy(listPlayers, ['wins']);
 
         groupModel.removeAll().then(function () {
 
