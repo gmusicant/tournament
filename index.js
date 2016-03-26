@@ -357,7 +357,7 @@ app.get('/random', function (req, res) {
 
         listPlayers = _.shuffle(listPlayers);
 
-        listPlayers = _.orderBy(listPlayers, ['wins']);
+        listPlayers = _.orderBy(listPlayers, ['wins'], ['desc']);
 
         groupModel.removeAll().then(function () {
 
