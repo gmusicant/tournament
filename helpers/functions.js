@@ -24,18 +24,12 @@ function treeChoises(collection, level, isReadOnly) {
 
                         subGroups = treeChoises(_.slice(tmpCollection, 0), level + 1);
                         if (_.size(subGroups) > 0) {
-
                             groups = subGroups;
-                            firstElement.playWith.push(nextElement.id);
-                            nextElement.playWith.push(firstElement.id);
                             groups.push([firstElement.id, nextElement.id]);
                             isCompleted = true;
-
                         }
 
                     } else {
-                        firstElement.playWith.push(nextElement.id);
-                        nextElement.playWith.push(firstElement.id);
                         groups.push([firstElement.id, nextElement.id]);
                         isCompleted = true;
                     }

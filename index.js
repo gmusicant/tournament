@@ -363,13 +363,13 @@ app.get('/random', function (req, res) {
 
             var groupList = treeChoises(listPlayers, 1);
             Promise.all(_.map(groupList, function(group) {
+                _.find(listPlayers, {id: group[0]}).playWith.push(group[1]);
+                _.find(listPlayers, {id: group[1]}).playWith.push(group[0]);
                 return Promise.resolve(groupModel.add({group: group}));
             })).then(function () {
-
                 return Promise.all(_.map(listPlayers, function (player) {
                     return teamModel.update(player._id, player);
                 }));
-
             }).then(function () {
                 if (_.size(groupList) === 0)
                     errorMessage = 'We don\'t have any options for make teams.';
