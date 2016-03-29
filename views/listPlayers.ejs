@@ -1,9 +1,39 @@
 <%- include('header') %>
-<h2><%= tournament.title %> Players list</h2>
-<% if (isEditMode) { %>
-<a href="/<%= tournamentHash %>/addPlayer" class="btn btn-success">Add player</a>
-<% } %>
-<a href="/<%= tournamentHash %>/listPlayersGroups" class="btn btn-info">To the game board &gt;&gt;</a>
+
+<br/>
+<nav class="navbar navbar-default">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#"><%= tournament.title %></a>
+    </div>
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+
+            <% if (isEditMode) { %>
+            <li><a href="/<%= tournamentHash %>/addPlayer">Add player</a></li>
+            <% } %>
+
+            <li class="active"><a href="#">Players list</a></li>
+            <li><a href="/<%= tournamentHash %>/listPlayersGroups">Game board</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <% if (isLogin) { %>
+            <li><a href="/logout">Log out</a></li>
+            <% } %>
+            <% if (!isLogin) { %>
+            <li><a href="/login">Log in</a></li>
+            <% } %>
+        </ul>
+    </div>
+</nav>
+
+
+
 <br/>
 <br/>
 

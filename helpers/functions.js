@@ -51,10 +51,13 @@ function prepareRenderConstructor() {
 
         if (_.isUndefined(data))
             data = {};
+
         if (_.isUndefined(data.isEditMode))
             data.isEditMode = data.isEditMode = req && req.cookies && req.cookies.user && req.cookies.user.type === 'admin';
         if (_.isUndefined(data.isSuperEdit))
             data.isSuperEdit = false;
+        if (_.isUndefined(data.isLogin))
+            data.isLogin = req && req.cookies && req.cookies.user && req.cookies.user && req.cookies.user.type && req.cookies.user.type !== 'none';
 
         if (_.isUndefined(data.tournamentHash)) {
 
@@ -85,7 +88,6 @@ function encodeHash(id) {
 function decodeHash(hash) {
     return hashids.decode(hash);
 }
-
 
 exports = module.exports = {
     treeChoises: treeChoises,

@@ -1,8 +1,39 @@
 <%- include('header') %>
-<h2>Game board</h2>
+
+</br>
+<nav class="navbar navbar-default">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#"><%= tournament.title %></a>
+    </div>
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+
+            <% if (isEditMode) { %>
+            <li><a href="/<%= tournamentHash %>/addPlayer">Add player</a></li>
+            <% } %>
+
+            <li><a href="/<%= tournamentHash %>/listPlayers">Players list</a></li>
+            <li class="active"><a href="#">Game board</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <% if (isLogin) { %>
+            <li><a href="/logout">Log out</a></li>
+            <% } %>
+            <% if (!isLogin) { %>
+            <li><a href="/login">Log in</a></li>
+            <% } %>
+        </ul>
+    </div>
+</nav>
+
 <div class="bg-danger"><%= errorMessage %></div>
 
-<a href="/<%= tournamentHash %>/listPlayers" class="btn btn-info">&lt;&lt; to the people table</a></br></br>
 
 <div class="row border1">
 <% groups.forEach(function(group, key) { %>

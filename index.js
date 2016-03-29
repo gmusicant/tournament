@@ -74,7 +74,7 @@ app.get('/:tournamentHash/flushDB', function (req, res) {
             });
         });
     })
-    // .then(groupModel.removeAll) // todo. add tournamentHash
+    .then(groupModel.removeAll.bind(null, req.params.tournamentHash)) // todo. add tournamentHash
     .then(function () {
         res.redirect('/');;
     })
@@ -234,44 +234,51 @@ app.post('/addTournament', function (req, res) {
 
 app.get('/:tournamentHash/listPlayersGroups', function (req, res) {
 
-    teamModel.getAll(req.params.tournamentHash).then(function (listPlayers) {
+    errorMessage = '';
+    tournamentModel.get(req.params.tournamentHash).then(function (tournament){
 
-        groupModel.getAll(req.params.tournamentHash).then(function (groups) {
+        teamModel.getAll(req.params.tournamentHash).then(function (listPlayers) {
 
-            var groupedTeams = _.map(groups, function (groupTmp) {
+            groupModel.getAll(req.params.tournamentHash).then(function (groups) {
 
-                var teamsIds = groupTmp.group;
+                var groupedTeams = _.map(groups, function (groupTmp) {
 
-                var group = {
-                    persons: _.map(teamsIds, function(personId) {
+                    var teamsIds = groupTmp.group;
 
-                        var person = _.find(listPlayers, {id: personId});
+                    var group = {
+                        persons: _.map(teamsIds, function(personId) {
 
-                        var opponetId = _.head(_.difference(teamsIds, [person.id]));
-                        if (opponetId) {
+                            var person = _.find(listPlayers, {id: personId});
 
-                            var gameResult = _.find(person.gamesResults, {opponent: opponetId});
-                            if (gameResult) {
-                                person.pointsString = '(' + gameResult.points + ')';
-                                person.isWinner = gameResult.points > gameResult.opponentPoints;
-                                person.isLooser = gameResult.points < gameResult.opponentPoints;
-                            } else {
-                                person.pointsString = '';
-                                person.isWinner = false;
-                                person.isLooser = false;
+                            var opponetId = _.head(_.difference(teamsIds, [person.id]));
+                            if (opponetId) {
+
+                                var gameResult = _.find(person.gamesResults, {opponent: opponetId});
+                                if (gameResult) {
+                                    person.pointsString = '(' + gameResult.points + ')';
+                                    person.isWinner = gameResult.points > gameResult.opponentPoints;
+                                    person.isLooser = gameResult.points < gameResult.opponentPoints;
+                                } else {
+                                    person.pointsString = '';
+                                    person.isWinner = false;
+                                    person.isLooser = false;
+                                }
                             }
-                        }
 
-                        return person;
+                            return person;
 
-                    }),
-                    teamsIds: teamsIds
-                };
+                        }),
+                        teamsIds: teamsIds
+                    };
 
-                return group;
+                    return group;
+                });
+
+                res.render('listPlayersGroups', prepareRender.getRender({groups: groupedTeams, errorMessage: errorMessage, tournament: tournament}, req));
+
+            }).catch(function (err) {
+                console.log(err);
             });
-
-            res.render('listPlayersGroups', prepareRender.getRender({groups: groupedTeams, errorMessage: errorMessage}, req));
 
         }).catch(function (err) {
             console.log(err);
@@ -289,44 +296,50 @@ app.get('/:tournamentHash/listPlayersGroups/edit', function (req, res) {
 
 app.get('/:tournamentHash/listPlayersGroupsEdit', function (req, res) {
 
-    teamModel.getAll(req.params.tournamentHash).then(function (listPlayers) {
+    tournamentModel.get(req.params.tournamentHash).then(function (tournament){
 
-        groupModel.getAll(req.params.tournamentHash).then(function (groups) {
+        teamModel.getAll(req.params.tournamentHash).then(function (listPlayers) {
 
-            var groupedTeams = _.map(groups, function (groupTmp) {
+            groupModel.getAll(req.params.tournamentHash).then(function (groups) {
 
-                var teamsIds = groupTmp.group;
+                var groupedTeams = _.map(groups, function (groupTmp) {
 
-                var group = {
-                    persons: _.map(teamsIds, function(personId) {
+                    var teamsIds = groupTmp.group;
 
-                        var person = _.find(listPlayers, {id: personId});
+                    var group = {
+                        persons: _.map(teamsIds, function(personId) {
 
-                        var opponetId = _.head(_.difference(teamsIds, [person.id]));
-                        if (opponetId) {
+                            var person = _.find(listPlayers, {id: personId});
 
-                            var gameResult = _.find(person.gamesResults, {opponent: opponetId});
-                            if (gameResult) {
-                                person.pointsString = '(' + gameResult.points + ')';
-                                person.isWinner = gameResult.points > gameResult.opponentPoints;
-                                person.isLooser = gameResult.points < gameResult.opponentPoints;
-                            } else {
-                                person.pointsString = '';
-                                person.isWinner = false;
-                                person.isLooser = false;
+                            var opponetId = _.head(_.difference(teamsIds, [person.id]));
+                            if (opponetId) {
+
+                                var gameResult = _.find(person.gamesResults, {opponent: opponetId});
+                                if (gameResult) {
+                                    person.pointsString = '(' + gameResult.points + ')';
+                                    person.isWinner = gameResult.points > gameResult.opponentPoints;
+                                    person.isLooser = gameResult.points < gameResult.opponentPoints;
+                                } else {
+                                    person.pointsString = '';
+                                    person.isWinner = false;
+                                    person.isLooser = false;
+                                }
                             }
-                        }
 
-                        return person;
+                            return person;
 
-                    }),
-                    teamsIds: teamsIds
-                };
+                        }),
+                        teamsIds: teamsIds
+                    };
 
-                return group;
+                    return group;
+                });
+
+                res.render('listPlayersGroups', prepareRender.getRender({groups: groupedTeams, errorMessage: errorMessage, isEditMode: true, tournament: tournament}, req));
+
+            }).catch(function (err) {
+                console.log(err);
             });
-
-            res.render('listPlayersGroups', prepareRender.getRender({groups: groupedTeams, errorMessage: errorMessage, isEditMode: true}, req));
 
         }).catch(function (err) {
             console.log(err);
@@ -339,7 +352,13 @@ app.get('/:tournamentHash/listPlayersGroupsEdit', function (req, res) {
 });
 
 app.get('/:tournamentHash/addPlayer', function (req, res) {
-    res.render('addPlayer', prepareRender.getRender({}, req));
+    tournamentModel.get(req.params.tournamentHash).then(function (tournament){
+        res.render('addPlayer', prepareRender.getRender({tournament: tournament}, req));
+    }).catch(function(err) {
+        errorMessage = 'Error: ' + err;
+        console.log(err);
+        res.redirect('/' + req.params.tournamentHash + '/listPlayers');
+    });
 });
 
 app.post('/:tournamentHash/addPlayer', function (req, res) {
@@ -445,7 +464,19 @@ app.get('/:tournamentHash/random', function (req, res) {
 });
 
 app.get('/:tournamentHash/enterResult', function (req, res) {
-    res.render('enterResult', prepareRender.getRender({teamA: _.find(listPlayers, {id: req.query.teamAId}), teamB: _.find(listPlayers, {id: req.query.teamBId})}, req));
+    tournamentModel.get(req.params.tournamentHash).then(function (tournament) {
+        teamModel.getAll(req.params.tournamentHash).then(function (people) {
+            res.render('enterResult', prepareRender.getRender({tournament: tournament, teamA: _.find(people, {id: req.query.teamAId}), teamB: _.find(people, {id: req.query.teamBId})}, req));
+        }).catch(function (err) {
+            errorMessage = 'Something went wrong';
+            console.log(err);
+            res.redirect('/' + req.params.tournamentHash + '/listPlayers');
+        });
+    }).catch(function (err) {
+        errorMessage = 'Something went wrong';
+        console.log(err);
+        res.redirect('/' + req.params.tournamentHash + '/listPlayers');
+    });
 });
 
 app.post('/:tournamentHash/enterResult', function (req, res) {
