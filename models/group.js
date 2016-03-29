@@ -2,24 +2,18 @@ var _ = require('lodash');
 var mongoose = require('mongoose');
 
 
-var DB_USERNAME = process.env.DB_USERNAME || require('./../constants').DB_USERNAME;
-var DB_PASSWORD = process.env.DB_PASSWORD || require('./../constants').DB_PASSWORD;
-var DB_URI = 'mongodb://'+ DB_USERNAME +':'+ DB_PASSWORD +'@ds013559.mlab.com:13559/tornament';
-
-
-
-
 
 var Group = mongoose.model('Group', {
-    group: Array
+    group: Array,
+    tournamentHash: { type: String, index: true }
 });
 
 
 
 
-function getAll() {
+function getAll(tournamentHash) {
     return new Promise(function (res, rej) {
-        Group.find(function(err, groups) {
+        Group.find({tournamentHash: tournamentHash}, function(err, groups) {
             if (err)
                 rej(err);
             res(groups);
@@ -43,8 +37,8 @@ function add(params) {
     });
 }
 
-function removeAll() {
-    return getAll().then(function (groups) {
+function removeAll(tournamentHash) {
+    return getAll(tournamentHash).then(function (groups) {
 
         return Promise.all(_.map(groups, function (group) {
             return new Promise(function (resBelow, rejBelow) {

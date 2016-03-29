@@ -2,11 +2,6 @@ var _ = require('lodash');
 var mongoose = require('mongoose');
 
 
-var DB_USERNAME = process.env.DB_USERNAME || require('./../constants').DB_USERNAME;
-var DB_PASSWORD = process.env.DB_PASSWORD || require('./../constants').DB_PASSWORD;
-var DB_URI = 'mongodb://'+ DB_USERNAME +':'+ DB_PASSWORD +'@ds013559.mlab.com:13559/tornament';
-
-
 
 var Team = mongoose.model('Person', {
     firstName: String,
@@ -23,15 +18,16 @@ var Team = mongoose.model('Person', {
     wins: Number,
     buhgolts: Number,
     isWinner: Boolean,
-    isLooser: Boolean
+    isLooser: Boolean,
+    tournamentHash: { type: String, index: true }
 });
 
 
 
 
-function getAll() {
+function getAll(tournamentHash) {
     return new Promise(function (res, rej) {
-        Team.find(function(err, people) {
+        Team.find({tournamentHash: tournamentHash}, function(err, people) {
             if (err)
                 rej(err);
             res(people);

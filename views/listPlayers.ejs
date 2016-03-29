@@ -1,9 +1,9 @@
 <%- include('header') %>
-<h2>Players list</h2>
+<h2><%= tournament.title %> Players list</h2>
 <% if (isEditMode) { %>
-<a href="/addPlayer" class="btn btn-success">Add player</a>
+<a href="/<%= tournamentHash %>/addPlayer" class="btn btn-success">Add player</a>
 <% } %>
-<a href="/listPlayersGroups" class="btn btn-info">To the game board &gt;&gt;</a>
+<a href="/<%= tournamentHash %>/listPlayersGroups" class="btn btn-info">To the game board &gt;&gt;</a>
 <br/>
 <br/>
 
@@ -30,7 +30,7 @@
 
     <td><%= num+1 %></td>
     <% if (isSuperEdit) { %>
-        <td><a href="/deletePlayer/<%= person.id %>" class="btn btn-danger">delete</a></td>
+        <td><a href="/<%= tournamentHash %>/deletePlayer/<%= person.id %>" class="btn btn-danger">delete</a></td>
     <% } %>
     <td><%= person.firstName %> <%= person.lastName %></td>
     <td><%= person.wins %></td>
@@ -53,7 +53,7 @@
 </table>
 <% if (isEditMode) { %>
     <a
-        href="/random"
+        href="/<%= tournamentHash %>/random"
         class="btn btn-warning"
         <% if (!allGamesScored) { %>
             onClick="return confirm('Not all games have scores. Do you want to continue ?'); "

@@ -6,15 +6,16 @@ var bodyParser = require('body-parser')
 var _ = require('lodash');
 var cookieParser = require('cookie-parser')
 var treeChoises = require('./helpers/functions').treeChoises;
+var prepareRender = new require('./helpers/functions').prepareRenderConstructor();
 var teamModel = require('./models/team');
+var tournamentModel = require('./models/tournament');
 var groupModel = require('./models/group');
 var mongoose = require('mongoose');
+var hashids = new require('hashids')('anton', 1, 'qwertyuiopasdfghjklzxcvbnm1234567890');
 
 var DB_USERNAME = process.env.DB_USERNAME || require('./constants').DB_USERNAME;
 var DB_PASSWORD = process.env.DB_PASSWORD || require('./constants').DB_PASSWORD;
 var DB_URI = 'mongodb://'+ DB_USERNAME +':'+ DB_PASSWORD +'@ds013559.mlab.com:13559/tornament';
-
-
 
 /* global variables */
 
@@ -42,22 +43,27 @@ app.use(cookieParser());
 /* routes */
 
 app.get('/', function (req, res) {
-    res.redirect('/listPlayers');
+    if (req.cookies.tournamentHash) {
+        res.redirect('/' +req.cookies.tournamentHash + '/listPlayers');
+    } else {
+        //todo: redirect to current tournament
+        res.redirect('/listTournaments');
+    }
 });
 
 app.get('/login', function (req, res) {
     res.cookie('user', { type: 'admin' });
-    res.redirect('/listPlayers');
+    res.redirect('/');
 });
 
 app.get('/logout', function (req, res) {
     res.cookie('user', { type: 'none' });
-    res.redirect('/listPlayers');
+    res.redirect('/');
 });
 
-app.get('/flushDB', function (req, res) {
+app.get('/:tournamentHash/flushDB', function (req, res) {
     errorMessage = '';
-    teamModel.getAll().then(function (people) {
+    teamModel.getAll(req.params.tournamentHash).then(function (people) {
         _.forEach(people, function(player) {
             teamModel.update(player.id, {
                 gamesResults: [],
@@ -67,114 +73,170 @@ app.get('/flushDB', function (req, res) {
                 playWith: []
             });
         });
-    }).then(groupModel.removeAll)
+    })
+    // .then(groupModel.removeAll) // todo. add tournamentHash
     .then(function () {
-        res.redirect('/listPlayers');;
+        res.redirect('/');;
     })
     .catch(function(err) {
         console.log(err);
-        res.redirect('/listPlayers');
+        res.redirect('/');
     });
 });
 
+// app.get('/addTournamentHash', function (req, res) {
+//     errorMessage = '';
+//     teamModel.getAll().then(function (people) {
+//         _.forEach(people, function(player) {
+//             teamModel.update(player.id, {
+//                 tournamentHash: 'l4x'
+//             });
+//         });
+//     })
+//     .then(function () {
+//         res.redirect('/');;
+//     })
+//     .catch(function(err) {
+//         console.log(err);
+//         res.redirect('/');
+//     });
+// });
 
-app.get('/listPlayers', function (req, res) {
 
-    teamModel.getAll().then(function (people) {
+app.get('/:tournamentHash/listPlayers', function (req, res) {
 
-        listPlayers = _.map(people, function(player) {
-            player.points = _.sum(_.map(player.gamesResults, function(gameResult) {
-                return +gameResult.points - gameResult.opponentPoints;
+    res.cookie('tournamentHash', req.params.tournamentHash);
+
+    tournamentModel.get(req.params.tournamentHash).then(function (tournament){
+        teamModel.getAll(req.params.tournamentHash).then(function (people) {
+
+            listPlayers = _.map(people, function(player) {
+                player.points = _.sum(_.map(player.gamesResults, function(gameResult) {
+                    return +gameResult.points - gameResult.opponentPoints;
+                }));
+
+                player.wins = _.sum(_.map(player.gamesResults, function(gameResult) {
+                    return Number(gameResult.points > gameResult.opponentPoints);
+                }));
+
+                return player;
+            });
+
+            // we have to do this after all players have wins count from previous loop
+            listPlayers = _.map(listPlayers, function(player) {
+                player.buhgolts = _.sum(_.map(player.gamesResults, function(gameResult) {
+                    return _.find(listPlayers, {id: gameResult.opponent}).wins;
+                }));
+                return player;
+            });
+
+            var players = _.orderBy(listPlayers, ['wins', 'buhgolts', 'points'], ['desc', 'desc', 'desc']);
+
+            var gamePlayed = _.max(_.map(players, function(player) {
+                return player.gamesResults.length;
             }));
 
-            player.wins = _.sum(_.map(player.gamesResults, function(gameResult) {
-                return Number(gameResult.points > gameResult.opponentPoints);
+            var allGamesScored = _.min(_.map(listPlayers, function(player) {
+                return player.gamesResults.length == gamePlayed;
             }));
 
-            return player;
+            res.render('listPlayers', prepareRender.getRender({people: players, gamePlayed: gamePlayed, allGamesScored: allGamesScored, tournament: tournament}, req));
+
+        }).catch(function (err) {
+            console.log(err);
         });
+    }).catch(function (err) {
+        console.log(err);
+    });
 
-        // we have to do this after all players have wins count from previous loop
-        listPlayers = _.map(listPlayers, function(player) {
-            player.buhgolts = _.sum(_.map(player.gamesResults, function(gameResult) {
-                return _.find(listPlayers, {id: gameResult.opponent}).wins;
+});
+app.get('/:tournamentHash/listPlayers/edit', function (req, res) {
+    res.redirect('/' + req.params.tournamentHash + '/listPlayersEdit');
+});
+
+app.get('/:tournamentHash/listPlayersEdit', function (req, res) {
+
+    res.cookie('tournamentHash', req.params.tournamentHash);
+
+    tournamentModel.get(req.params.tournamentHash).then(function (tournament){
+        teamModel.getAll(req.params.tournamentHash).then(function (people) {
+
+            listPlayers = _.map(people, function(player) {
+                player.points = _.sum(_.map(player.gamesResults, function(gameResult) {
+                    return +gameResult.points - gameResult.opponentPoints;
+                }));
+
+                player.wins = _.sum(_.map(player.gamesResults, function(gameResult) {
+                    return Number(gameResult.points > gameResult.opponentPoints);
+                }));
+
+                return player;
+            });
+
+            // we have to do this after all players have wins count from previous loop
+            listPlayers = _.map(listPlayers, function(player) {
+                player.buhgolts = _.sum(_.map(player.gamesResults, function(gameResult) {
+                    return _.find(listPlayers, {id: gameResult.opponent}).wins;
+                }));
+                return player;
+            });
+
+            var players = _.orderBy(listPlayers, ['wins', 'buhgolts', 'points'], ['desc', 'desc', 'desc']);
+
+            var gamePlayed = _.max(_.map(players, function(player) {
+                return player.gamesResults.length;
             }));
-            return player;
+
+            var allGamesScored = _.min(_.map(listPlayers, function(player) {
+                return player.gamesResults.length == gamePlayed;
+            }));
+
+            res.render('listPlayers', prepareRender.getRender({people: players, gamePlayed: gamePlayed, isEditMode: true, isSuperEdit: true, allGamesScored: allGamesScored, tournament: tournament}, req));
+
+        }).catch(function (err) {
+            console.log(err);
         });
-
-        var players = _.orderBy(listPlayers, ['wins', 'buhgolts', 'points'], ['desc', 'desc', 'desc']);
-
-        var gamePlayed = _.max(_.map(players, function(player) {
-            return player.gamesResults.length;
-        }));
-
-        var isEditMode = req.cookies.user && req.cookies.user.type === 'admin';
-
-        var allGamesScored = _.min(_.map(listPlayers, function(player) {
-            return player.gamesResults.length == gamePlayed;
-        }));
-
-        var timeDiff = (new Date()).getTime() - timer.getTime();
-        res.render('listPlayers', {people: players, gamePlayed: gamePlayed, isEditMode: isEditMode, isSuperEdit: false, allGamesScored: allGamesScored, timer: timeDiff});
-
     }).catch(function (err) {
         console.log(err);
     });
 
 });
 
-app.get('/listPlayers/edit', function (req, res) {
-    res.redirect('/listPlayersEdit');
-});
-
-app.get('/listPlayersEdit', function (req, res) {
-
-    teamModel.getAll().then(function (people) {
-
-        listPlayers = _.map(people, function(player) {
-            player.points = _.sum(_.map(player.gamesResults, function(gameResult) {
-                return +gameResult.points - gameResult.opponentPoints;
-            }));
-
-            player.wins = _.sum(_.map(player.gamesResults, function(gameResult) {
-                return Number(gameResult.points > gameResult.opponentPoints);
-            }));
-
-            return player;
-        });
-
-        // we have to do this after all players have wins count from previous loop
-        listPlayers = _.map(listPlayers, function(player) {
-            player.buhgolts = _.sum(_.map(player.gamesResults, function(gameResult) {
-                return _.find(listPlayers, {id: gameResult.opponent}).wins;
-            }));
-            return player;
-        });
-
-        var players = _.orderBy(listPlayers, ['wins', 'buhgolts', 'points'], ['desc', 'desc', 'desc']);
-
-        var gamePlayed = _.max(_.map(players, function(player) {
-            return player.gamesResults.length;
-        }));
-
-        var allGamesScored = _.min(_.map(listPlayers, function(player) {
-            return player.gamesResults.length == gamePlayed;
-        }));
-
-        var timeDiff = (new Date()).getTime() - timer.getTime();
-        res.render('listPlayers', {people: players, gamePlayed: gamePlayed, isEditMode: true, isSuperEdit: true, allGamesScored: allGamesScored, timer: timeDiff});
-
+app.get('/listTournaments', function (req, res) {
+    tournamentModel.getAll().then(function (tournaments) {
+        res.render('listTournaments', prepareRender.getRender({tournaments: tournaments}, req));
     }).catch(function (err) {
         console.log(err);
+    });
+});
+
+app.get('/addTournament', function (req, res) {
+    res.render('addTournament', prepareRender.getRender({}, req));
+});
+
+app.post('/addTournament', function (req, res) {
+
+    tournamentModel.add({
+        title: req.body.title,
+        description: req.body.description,
+        startDate: timer.getTime(),
+        endDate: timer.getTime(),
+        location: req.body.location
+    }).then(function() {
+        res.redirect('/listTournaments'); // should redirect to edit mode
+    }).catch(function(err) {
+        errorMessage = 'Error: ' + err;
+        console.log(err);
+        res.redirect('/listTournaments'); // should redirect to edit mode
     });
 
 });
 
-app.get('/listPlayersGroups', function (req, res) {
+app.get('/:tournamentHash/listPlayersGroups', function (req, res) {
 
-    teamModel.getAll().then(function (listPlayers) {
+    teamModel.getAll(req.params.tournamentHash).then(function (listPlayers) {
 
-        groupModel.getAll().then(function (groups) {
+        groupModel.getAll(req.params.tournamentHash).then(function (groups) {
 
             var groupedTeams = _.map(groups, function (groupTmp) {
 
@@ -209,10 +271,7 @@ app.get('/listPlayersGroups', function (req, res) {
                 return group;
             });
 
-            var isEditMode = req.cookies.user && req.cookies.user.type === 'admin';
-
-            var timeDiff = (new Date()).getTime() - timer.getTime();
-            res.render('listPlayersGroups', {groups: groupedTeams, errorMessage: errorMessage, timer: timeDiff, isEditMode: isEditMode});
+            res.render('listPlayersGroups', prepareRender.getRender({groups: groupedTeams, errorMessage: errorMessage}, req));
 
         }).catch(function (err) {
             console.log(err);
@@ -224,15 +283,15 @@ app.get('/listPlayersGroups', function (req, res) {
 
 });
 
-app.get('/listPlayersGroups/edit', function (req, res) {
-    res.redirect('/listPlayersGroupsEdit');
+app.get('/:tournamentHash/listPlayersGroups/edit', function (req, res) {
+    res.redirect('/' + req.params.tournamentHash +'/listPlayersGroupsEdit');
 });
 
-app.get('/listPlayersGroupsEdit', function (req, res) {
+app.get('/:tournamentHash/listPlayersGroupsEdit', function (req, res) {
 
-    teamModel.getAll().then(function (listPlayers) {
+    teamModel.getAll(req.params.tournamentHash).then(function (listPlayers) {
 
-        groupModel.getAll().then(function (groups) {
+        groupModel.getAll(req.params.tournamentHash).then(function (groups) {
 
             var groupedTeams = _.map(groups, function (groupTmp) {
 
@@ -267,8 +326,7 @@ app.get('/listPlayersGroupsEdit', function (req, res) {
                 return group;
             });
 
-            var timeDiff = (new Date()).getTime() - timer.getTime();
-            res.render('listPlayersGroups', {groups: groupedTeams, errorMessage: errorMessage, timer: timeDiff, isEditMode: true});
+            res.render('listPlayersGroups', prepareRender.getRender({groups: groupedTeams, errorMessage: errorMessage, isEditMode: true}, req));
 
         }).catch(function (err) {
             console.log(err);
@@ -280,50 +338,50 @@ app.get('/listPlayersGroupsEdit', function (req, res) {
 
 });
 
-app.get('/addPlayer', function (req, res) {
-    var timeDiff = (new Date()).getTime() - timer.getTime();
-    res.render('addPlayer', {timer: timeDiff});
+app.get('/:tournamentHash/addPlayer', function (req, res) {
+    res.render('addPlayer', prepareRender.getRender({}, req));
 });
 
-app.post('/addPlayer', function (req, res) {
+app.post('/:tournamentHash/addPlayer', function (req, res) {
     teamModel.add({
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         playWith: [],
-        gamesResults: []
+        gamesResults: [],
+        tournamentHash: req.params.tournamentHash
     }).then(function() {
-        res.redirect('listPlayers');
+        res.redirect('/' + req.params.tournamentHash + '/listPlayers');
     }).catch(function(err) {
         errorMessage = 'Error: ' + err;
         console.log(err);
-        res.redirect('listPlayers');
+        res.redirect('/' + req.params.tournamentHash + '/listPlayers');
     });
 });
 
-app.get('/deletePlayer/:playerId', function (req, res) {
+app.get('/:tournamentHash/deletePlayer/:playerId', function (req, res) {
     teamModel.remove(req.params.playerId).then(function() {
-        res.redirect('/listPlayers');
+        res.redirect('/' + req.params.tournamentHash + '/listPlayers');
     }).catch(function(err) {
         errorMessage = 'Error: ' + err;
         console.log(err);
-        res.redirect('listPlayers');
+        res.redirect('/' + req.params.tournamentHash + '/listPlayers');
     });
 });
 
+app.get('/:tournamentHash/random', function (req, res) {
 
-app.get('/random', function (req, res) {
-
-    timer = new Date();
+    prepareRender.timer[req.params.tournamentHash] = new Date();
 
     new Promise(function (resolve, reject) {
 
-        teamModel.getAll().then(function (teams) {
+        teamModel.getAll(req.params.tournamentHash).then(function (teams) {
             if (teams.length % 2) {
                 teamModel.add({
                     firstName: "Random",
                     lastName: "player",
                     playWith: [],
-                    gamesResults: []
+                    gamesResults: [],
+                    tournamentHash: req.params.tournamentHash
                 }).then(function (team) {
                     teams.push(team);
                     resolve(teams);
@@ -359,13 +417,13 @@ app.get('/random', function (req, res) {
 
         listPlayers = _.orderBy(listPlayers, ['wins'], ['desc']);
 
-        groupModel.removeAll().then(function () {
+        groupModel.removeAll(req.params.tournamentHash).then(function () {
 
             var groupList = treeChoises(listPlayers, 1);
             Promise.all(_.map(groupList, function(group) {
                 _.find(listPlayers, {id: group[0]}).playWith.push(group[1]);
                 _.find(listPlayers, {id: group[1]}).playWith.push(group[0]);
-                return Promise.resolve(groupModel.add({group: group}));
+                return Promise.resolve(groupModel.add({group: group, tournamentHash: req.params.tournamentHash}));
             })).then(function () {
                 return Promise.all(_.map(listPlayers, function (player) {
                     return teamModel.update(player._id, player);
@@ -373,7 +431,7 @@ app.get('/random', function (req, res) {
             }).then(function () {
                 if (_.size(groupList) === 0)
                     errorMessage = 'We don\'t have any options for make teams.';
-                res.redirect('listPlayersGroups');
+                res.redirect('/' + req.params.tournamentHash + '/listPlayersGroups');
             });
 
         });
@@ -381,19 +439,18 @@ app.get('/random', function (req, res) {
     }).catch(function (err) {
         errorMessage = 'Something went wrong';
         console.log(err);
-        res.redirect('listPlayers');
+        res.redirect('/' + req.params.tournamentHash + '/listPlayers');
     });
 
 });
 
-app.get('/enterResult', function (req, res) {
-    var timeDiff = (new Date()).getTime() - timer.getTime();
-    res.render('enterResult', {teamA: _.find(listPlayers, {id: req.query.teamAId}), teamB: _.find(listPlayers, {id: req.query.teamBId}), timer: timeDiff});
+app.get('/:tournamentHash/enterResult', function (req, res) {
+    res.render('enterResult', prepareRender.getRender({teamA: _.find(listPlayers, {id: req.query.teamAId}), teamB: _.find(listPlayers, {id: req.query.teamBId})}, req));
 });
 
-app.post('/enterResult', function (req, res) {
+app.post('/:tournamentHash/enterResult', function (req, res) {
 
-    teamModel.getAll().then(function (listPlayers) {
+    teamModel.getAll(req.params.tournamentHash).then(function (listPlayers) {
 
         var teamA = _.find(listPlayers, {id: req.body.teamAId});
         var teamB = _.find(listPlayers, {id: req.body.teamBId});
@@ -426,15 +483,15 @@ app.post('/enterResult', function (req, res) {
             teamModel.update(teamA._id, teamA),
             teamModel.update(teamB._id, teamB),
         ]).then(function() {
-            res.redirect('listPlayersGroups');
+            res.redirect('/' + req.params.tournamentHash + '/listPlayersGroups');
         }).catch(function (err) {
             console.log(err);
-            res.redirect('listPlayersGroups');
+            res.redirect('/' + req.params.tournamentHash + '/listPlayersGroups');
         });
 
     }).catch(function (err) {
         console.log(err);
-        res.redirect('listPlayersGroups');
+        res.redirect('/' + req.params.tournamentHash + '/listPlayersGroups');
     });
 });
 

@@ -1,0 +1,34 @@
+<%- include('header') %>
+<h2>Add tournament</h2>
+<div class="row">
+    <form action="/addTournament" method="post">
+        <div class="form-group col-xs-4">
+            <label for="title" >title</label>
+            <br/>
+            <input id="title" type="text" name="title" class="form-control"><br/>
+            <label for="description">description</label>
+            <br/>
+            <input id="description" type="text" name="description" class="form-control">
+            <br/>
+            <label for="startDate">startDate</label>
+            <br/>
+            <input id="startDate" type="text" name="startDate" class="form-control">
+            <br/>
+            <label for="endDate">endDate</label>
+            <br/>
+            <input id="endDate" type="text" name="endDate" class="form-control">
+            <br/>
+            <label for="location">location</label>
+            <br/>
+            <input id="location" type="text" name="location" class="form-control">
+            <br/>
+            <div class="pull-left">
+                <a href="/listTournaments" class="btn btn-danger">Back</a>
+            </div>
+            <div class="pull-right">
+                <input type="submit" value="go" class="btn btn-success ">
+            </div>
+        </div>
+    </form>
+</div>
+<%- include('footer') %>

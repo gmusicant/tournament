@@ -2,13 +2,13 @@
 <h2>Game board</h2>
 <div class="bg-danger"><%= errorMessage %></div>
 
-<a href="/listPlayers" class="btn btn-info">&lt;&lt; to the people table</a></br></br>
+<a href="/<%= tournamentHash %>/listPlayers" class="btn btn-info">&lt;&lt; to the people table</a></br></br>
 
 <div class="row border1">
 <% groups.forEach(function(group, key) { %>
 
     <% if (isEditMode) { %>
-    <a href="enterResult?teamAId=<%= group.teamsIds[0] %>&teamBId=<%= group.teamsIds[1] %>">
+    <a href="/<%= tournamentHash %>/enterResult?teamAId=<%= group.teamsIds[0] %>&teamBId=<%= group.teamsIds[1] %>">
     <% } %>
     <div class="col-sm-4 rounded text-center">
         <span class="clearfix">Field #<%= key+1 %></span>

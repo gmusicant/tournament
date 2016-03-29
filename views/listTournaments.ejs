@@ -1,0 +1,43 @@
+<%- include('header') %>
+<h2>Tournaments list</h2>
+<% if (isEditMode) { %>
+<a href="/addTournament" class="btn btn-success">Add tournament</a>
+<% } %>
+<br/>
+<br/>
+
+<table class="table table-striped">
+<thead>
+<tr>
+    <th>#</th>
+    <% if (isSuperEdit) { %>
+    <th>action</th>
+    <% } %>
+    <th>title</th>
+    <th>description</th>
+    <th>startDate</th>
+    <th>endDate</th>
+    <th>location</th>
+    <th>Go to tournament</th>
+</tr>
+</thead>
+<tbody class="table-striped">
+<% tournaments.forEach(function(tournament, num) { %>
+<tr>
+
+    <td><%= num+1 %></td>
+    <% if (isSuperEdit) { %>
+        <td><a href="/deleteTournament/<%= tournament.id %>" class="btn btn-danger">delete</a></td>
+    <% } %>
+    <td><%= tournament.title %></td>
+    <td><%= tournament.description %></td>
+    <td><%= tournament.startDate %></td>
+    <td><%= tournament.endDate %></td>
+    <td><%= tournament.location.length %></td>
+    <td><td><a href="/<%= tournament.hash %>/listPlayers/" class="btn btn-success">go</a></td></td>
+
+</tr>
+<% }); %>
+</tbody>
+</table>
+<%- include('footer') %>
