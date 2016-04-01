@@ -13,8 +13,8 @@
         <div>&nbsp;</div>
     <% people.forEach(function(person, num) { %>
         <div style="height: 27px; width: 180px; overflow: hidden; border-radius: 10px; border: 2px solid <%= person.color %>; margin-bottom: 2px;">
+        <div style="float: right; background: <%= person.color %>; width: 6px; height: 100%; border-radius: 50px;" >&nbsp;</div>
             &nbsp;<%= person.firstName %>  <%= person.lastName %>&nbsp;
-            <div style="float: right; background: <%= person.color %>; width: 6px; height: 100%; border-radius: 50px;" >&nbsp;</div>
         </div>
     <% }); %>
     </div>
