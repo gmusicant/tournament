@@ -41,15 +41,34 @@
     <% if (isEditMode) { %>
     <a href="/<%= tournamentHash %>/enterResult?teamAId=<%= group.teamsIds[0] %>&teamBId=<%= group.teamsIds[1] %>">
     <% } %>
-    <div class="col-sm-4 rounded text-center">
-        <span class="clearfix">Field #<%= key+1 %></span>
-        <span class="rounded-no-border <%= ((group.persons[0].isWinner) ? 'bg-success' : '') %> <%= ((group.persons[0].isLooser) ? 'bg-danger' : '') %>">
-            <%= group.persons[0].firstName %> <%= group.persons[0].lastName[0] %>. <%= group.persons[0].pointsString %>
-        </span>
-        VS
-        <span class="rounded-no-border <%= ((group.persons[1].isWinner) ? 'bg-success' : '') %> <%= ((group.persons[1].isLooser) ? 'bg-danger' : '') %>">
-            <%= group.persons[1].firstName %> <%= group.persons[1].lastName[0] %>. <%= group.persons[1].pointsString %>
-        </span>
+    <div class="col-sm-4 rounded text-center" style="min-height: 100px">
+        <div class="clearfix" style="width: 100%;">Field #<%= key+1 %></div>
+        <div style="float:left; margin-top: -10px;">
+
+            <center>
+            <div style="width: 50px; height: 50px; border: 4px solid <%= group.persons[0].color %>; box-shadow: 0 0 0 1px hsl(0, 0%, 80%); margin-bottom: 5px; border-radius: 90px; font-size: 30px; background: #EEEEEE; text-align: center; color: #000000;">
+                <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+            </div>
+            </center>
+
+
+            <!--<img src="https://pbs.twimg.com/profile_images/578135559362768896/jn2IdYpS.jpeg" class="img-circle" style="" align="middle"><br/>-->
+            <span class="rounded-no-border <%= ((group.persons[0].isWinner) ? 'bg-success' : '') %> <%= ((group.persons[0].isLooser) ? 'bg-danger' : '') %>">
+                <%= group.persons[0].firstName %> <%= group.persons[0].lastName %> <%= group.persons[0].pointsString %>
+            </span>
+        </div>
+        <span>VS</span>
+        <div style="float:right; margin-top: -10px;">
+            <center>
+            <div style="width: 50px; height: 50px; border: 4px solid <%= group.persons[1].color %>; box-shadow: 0 0 0 1px hsl(0, 0%, 80%); margin-bottom: 5px; border-radius: 90px; font-size: 30px; background: #EEEEEE; text-align: center; color: #000000; ">
+                <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+            </div>
+            </center>
+            <!--<img src="https://pbs.twimg.com/profile_images/578135559362768896/jn2IdYpS.jpeg" class="img-circle" style="width: 50px; height: 50px; border: 4px solid <%= group.persons[1].color %>; box-shadow: 0 0 0 1px hsl(0, 0%, 80%); margin-bottom: 5px;" align="middle"><br/>-->
+            <span class="rounded-no-border <%= ((group.persons[1].isWinner) ? 'bg-success' : '') %> <%= ((group.persons[1].isLooser) ? 'bg-danger' : '') %>">
+                <%= group.persons[1].firstName %> <%= group.persons[1].lastName %> <%= group.persons[1].pointsString %>
+            </span>
+        </div>
     </div>
     <% if (isEditMode) { %>
     </a>

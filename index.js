@@ -10,6 +10,7 @@ var prepareRender = new require('./helpers/functions').prepareRenderConstructor(
 var teamModel = require('./models/team');
 var tournamentModel = require('./models/tournament');
 var groupModel = require('./models/group');
+var tournamentCollection = require('./collections/tournaments');
 var mongoose = require('mongoose');
 var hashids = new require('hashids')('anton', 1, 'qwertyuiopasdfghjklzxcvbnm1234567890');
 
@@ -54,6 +55,251 @@ app.get('/', function (req, res) {
 app.get('/login', function (req, res) {
     res.cookie('user', { type: 'admin' });
     res.redirect('/');
+});
+
+app.get('/:tournamentHash/listTournamentTable', function (req, res) {
+    teamModel.getAll(req.params.tournamentHash).then(function (people) {
+
+        var calculateGameResults = function(people1, people2, gameNumber) {
+
+            var gameResults = [];
+            _.forEach(people1, function(player) {
+                if (player.gamesResults[gameNumber].points > player.gamesResults[gameNumber].opponentPoints) {
+                    var playerIndex = _.findIndex(people1, {id: player.id});
+                    gameResults.push({
+                        gameBefore: [playerIndex, _.findIndex(people1, {id: player.gamesResults[gameNumber].opponent})],
+                        gameAfter: [_.findIndex(people2, {id: player.id}), _.findIndex(people2, {id: player.gamesResults[gameNumber].opponent})],
+                        winner: playerIndex
+                    });
+                }
+            });
+
+            gameResults = gameResults.sort(function (a,b) {
+                var aMin = _.min(a.gameAfter);
+                var bMin = _.min(b.gameAfter);
+                return aMin - bMin;
+            });
+
+            return gameResults;
+
+        };
+
+        /* round 1 */
+
+        var listTours = [tournamentCollection.swidishCalculationResults(people, 0, 1)];
+        var listGames = [];
+
+        var maxGamePlayed = _.max(_.map(people, function(player) { return player.gamesResults.length; }));
+        for(var i=0; i<4; i++) {
+            var peopleListTmp = tournamentCollection.swidishCalculationResults(people, 0, i+1);
+            peopleListTmp = _.orderBy(peopleListTmp, ['wins', 'buhgolts', 'points'], ['desc', 'desc', 'desc']);
+            listTours.push(peopleListTmp);
+            listGames.push(calculateGameResults(listTours[listTours.length-2], listTours[listTours.length-1], i));
+        }
+
+        var additionalWins = [];
+        for(var i=5; i>=0; i--) {
+            additionalWins.push(_.fill(Array(4), i*8));
+        }
+        additionalWins = _.flatten(additionalWins);
+
+        peopleListTmp = _.orderBy(peopleListTmp, ['wins'], ['desc']);
+
+        var peopleListTmp = tournamentCollection.swidishCalculationResults(people, 0, 4);
+        peopleListTmp = _.orderBy(peopleListTmp, ['wins', 'buhgolts', 'points'], ['desc', 'desc', 'desc']);
+        peopleListTmp = tournamentCollection.swidishCalculationResults(peopleListTmp, 4, 5);
+        _.forEach(peopleListTmp, function(person, num) {
+            person.wins += additionalWins[num];
+        });
+        peopleListTmp = _.orderBy(peopleListTmp, ['wins'], ['desc']);
+        listTours.push(peopleListTmp);
+        listGames.push(calculateGameResults(listTours[listTours.length-2], listTours[listTours.length-1], 4));
+
+        additionalWins = [];
+        for(var i=10; i>=0; i--) {
+            additionalWins.push(_.fill(Array(2), i*8));
+        }
+        additionalWins = _.flatten(additionalWins);
+
+        peopleListTmp = tournamentCollection.swidishCalculationResults(peopleListTmp, 5, 6);
+        _.forEach(peopleListTmp, function(person, num) {
+            person.wins += additionalWins[num];
+        });
+        peopleListTmp = _.orderBy(peopleListTmp, ['wins'], ['desc']);
+        listTours.push(peopleListTmp);
+        listGames.push(calculateGameResults(listTours[listTours.length-2], listTours[listTours.length-1], 5));
+
+
+        // var people1 = tournamentCollection.swidishCalculationResults(people, 1);
+        // var people2 = _.orderBy(people1, ['wins', 'buhgolts', 'points'], ['desc', 'desc', 'desc']);
+        // people1 = people2;
+
+        // var games1 = calculateGameResults(people1, people2, 0);
+
+        // /* round 2 */
+
+        // var people3 = tournamentCollection.swidishCalculationResults(people, 2);
+        // people3 = _.orderBy(people3, ['wins', 'buhgolts', 'points'], ['desc', 'desc', 'desc']);
+
+        // var games2 = calculateGameResults(people2, people3, 1);
+
+        // var people4 = tournamentCollection.swidishCalculationResults(people, 3);
+        // people4 = _.orderBy(people4, ['wins', 'buhgolts', 'points'], ['desc', 'desc', 'desc']);
+
+        // var games3 = calculateGameResults(people3, people4, 2);
+
+
+        // var people5 = tournamentCollection.swidishCalculationResults(people, 4);
+        // people5 = _.orderBy(people5, ['wins', 'buhgolts', 'points'], ['desc', 'desc', 'desc']);
+
+        // var games4 = calculateGameResults(people4, people5, 3);
+
+
+
+        /* round 2 */
+
+
+        // listPlayers = _.map(people, function(player) {
+        //     player.points = _.sum(_.map(player.gamesResults.slice(0,2), function(gameResult) {
+        //         return +gameResult.points - gameResult.opponentPoints;
+        //     }));
+
+        //     player.wins = _.sum(_.map(player.gamesResults, function(gameResult) {
+        //         return Number(gameResult.points > gameResult.opponentPoints);
+        //     }));
+
+        //     return player;
+        // });
+
+        // // we have to do this after all players have wins count from previous loop
+        // listPlayers = _.map(listPlayers, function(player) {
+        //     player.buhgolts = _.sum(_.map(player.gamesResults, function(gameResult) {
+        //         return _.find(listPlayers, {id: gameResult.opponent}).wins;
+        //     }));
+        //     return player;
+        // });
+
+        // var games2 = [];
+
+        // var people3 = _.orderBy(listPlayers, ['wins', 'buhgolts', 'points'], ['desc', 'desc', 'desc']);
+
+        // _.forEach(listPlayers, function(player) {
+        //     if (player.gamesResults[1].points > player.gamesResults[1].opponentPoints) {
+        //         var playerIndex = _.findIndex(people2, {id: player.id});
+        //         games2.push({
+        //             gameBefore: [playerIndex, _.findIndex(people2, {id: player.gamesResults[1].opponent})],
+        //             gameAfter: [_.findIndex(people3, {id: player.id}), _.findIndex(people3, {id: player.gamesResults[1].opponent})],
+        //             winner: playerIndex
+        //         });
+        //     }
+        // });
+
+        // games2 = games2.sort(function (a,b) {
+        //     var aMin = _.min(a.gameBefore);
+        //     var bMin = _.min(b.gameBefore);
+        //     return aMin - bMin;
+        // });
+
+        // /* round 3 */
+
+        // listPlayers = _.map(people, function(player) {
+        //     player.points = _.sum(_.map(player.gamesResults.slice(0,3), function(gameResult) {
+        //         return +gameResult.points - gameResult.opponentPoints;
+        //     }));
+
+        //     player.wins = _.sum(_.map(player.gamesResults, function(gameResult) {
+        //         return Number(gameResult.points > gameResult.opponentPoints);
+        //     }));
+
+        //     return player;
+        // });
+
+        // // we have to do this after all players have wins count from previous loop
+        // listPlayers = _.map(listPlayers, function(player) {
+        //     player.buhgolts = _.sum(_.map(player.gamesResults, function(gameResult) {
+        //         return _.find(listPlayers, {id: gameResult.opponent}).wins;
+        //     }));
+        //     return player;
+        // });
+
+        // var games3 = [];
+
+        // var people4 = _.orderBy(listPlayers, ['wins', 'buhgolts', 'points'], ['desc', 'desc', 'desc']);
+
+        // _.forEach(listPlayers, function(player) {
+        //     if (player.gamesResults[2].points > player.gamesResults[2].opponentPoints) {
+        //         var playerIndex = _.findIndex(people3, {id: player.id});
+        //         games3.push({
+        //             gameBefore: [playerIndex, _.findIndex(people3, {id: player.gamesResults[2].opponent})],
+        //             gameAfter: [_.findIndex(people4, {id: player.id}), _.findIndex(people4, {id: player.gamesResults[2].opponent})],
+        //             winner: playerIndex
+        //         });
+        //     }
+        // });
+
+        // games3 = games3.sort(function (a,b) {
+        //     var aMin = _.min(a.gameBefore);
+        //     var bMin = _.min(b.gameBefore);
+        //     return aMin - bMin;
+        // });
+
+        // /* round 4 */
+
+        // listPlayers = _.map(people, function(player) {
+        //     player.points = _.sum(_.map(player.gamesResults.slice(0,4), function(gameResult) {
+        //         return +gameResult.points - gameResult.opponentPoints;
+        //     }));
+
+        //     player.wins = _.sum(_.map(player.gamesResults, function(gameResult) {
+        //         return Number(gameResult.points > gameResult.opponentPoints);
+        //     }));
+
+        //     return player;
+        // });
+
+        // // we have to do this after all players have wins count from previous loop
+        // listPlayers = _.map(listPlayers, function(player) {
+        //     player.buhgolts = _.sum(_.map(player.gamesResults, function(gameResult) {
+        //         return _.find(listPlayers, {id: gameResult.opponent}).wins;
+        //     }));
+        //     return player;
+        // });
+
+        // var games4 = [];
+
+        // var people5 = _.orderBy(listPlayers, ['wins', 'buhgolts', 'points'], ['desc', 'desc', 'desc']);
+
+        // _.forEach(listPlayers, function(player) {
+        //     if (player.gamesResults[3].points > player.gamesResults[3].opponentPoints) {
+        //         var playerIndex = _.findIndex(people4, {id: player.id});
+        //         games4.push({
+        //             gameBefore: [playerIndex, _.findIndex(people4, {id: player.gamesResults[3].opponent})],
+        //             gameAfter: [_.findIndex(people5, {id: player.id}), _.findIndex(people5, {id: player.gamesResults[3].opponent})],
+        //             winner: playerIndex
+        //         });
+        //     }
+        // });
+
+        // games4 = games4.sort(function (a,b) {
+        //     var aMin = _.min(a.gameBefore);
+        //     var bMin = _.min(b.gameBefore);
+        //     return aMin - bMin;
+        // });
+
+
+        // var groups = _.map(people1, function(person, number) {
+        //     return [number, _.findIndex(people2, {_id: person._id})];
+        // });
+
+        // groups = _.chunk(groups, 2);
+
+
+        // res.render('listTournamentTable', prepareRender.getRender({people1: people1, people2: people2, people3: people3, people4: people4, people5: people5, groups: games1, games2: games2, games3: games3, games4: games4}, req));
+        res.render('listTournamentTable', prepareRender.getRender({listTours: listTours, listGames: listGames}, req));
+        // res.render('listTournamentTable', prepareRender.getRender({people1: people1, people2: people2, people3: [], people4: [], people5: [], groups: games1, games2: [], games3: [], games4: []}, req));
+    }).catch(function(err) {
+        console.log(err);
+    });
 });
 
 app.get('/logout', function (req, res) {

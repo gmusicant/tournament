@@ -58,18 +58,27 @@
 <% people.forEach(function(person, num) { %>
 <tr>
 
-    <td><%= num+1 %></td>
+    <td><%= num+1 %> <%= person.id %></td>
     <% if (isSuperEdit) { %>
         <td><a href="/<%= tournamentHash %>/deletePlayer/<%= person.id %>" class="btn btn-danger">delete</a></td>
     <% } %>
-    <td><%= person.firstName %> <%= person.lastName %></td>
+    <td style="position: relative; height: 37px;">
+
+        <div style="position: absolute; top: -10px; <% if (num % 2 == 1) { %> left: 10px; <% } else { %> left: -25px; <% } %> width: 50px; height: 50px; z-index: 9000; border: 4px solid <%= person.color %>; box-shadow: 0 0 0 1px hsl(0, 0%, 80%); border-radius: 90px; font-size: 30px; background: #EEEEEE; text-align: center;">
+            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+        </div>
+        <!--<img src="https://pbs.twimg.com/profile_images/578135559362768896/jn2IdYpS.jpeg" class="img-circle" style="position: absolute; top: -10px; <% if (num % 2 == 1) { %> left: 10px; <% } else { %> left: -25px; <% } %> width: 50px; height: 50px; z-index: 9000; border: 4px solid <%= person.color %>; box-shadow: 0 0 0 1px hsl(0, 0%, 80%);">-->
+        <div style="padding-left:55px; white-space: nowrap ;">
+            <%= person.firstName %> <%= person.lastName %>
+        </div>
+    </td>
     <td><%= person.wins %></td>
     <td><%= person.buhgolts %></td>
     <td><%= person.points %></td>
     <td><%= person.gamesResults.length %></td>
 
     <% person.gamesResults.forEach(function(gameResult) { %>
-    <td class="text-<%= (gameResult.points - gameResult.opponentPoints) > 0 ? 'success' : 'danger' %>"> <span data-toggle="tooltip" data-placement="top" title="<%= gameResult.opponentFirstName %> <%= gameResult.opponentLastName %>"> <%= gameResult.points %>/<%= gameResult.opponentPoints %> (<%= (((gameResult.points - gameResult.opponentPoints) > 0) ? '+':'') + (gameResult.points - gameResult.opponentPoints) %>)</span></td>
+    <td class="text-<%= (gameResult.points - gameResult.opponentPoints) > 0 ? 'success' : 'danger' %>" style="white-space: nowrap ;"> <span data-toggle="tooltip" data-placement="top" title="<%= gameResult.opponentFirstName %> <%= gameResult.opponentLastName %>"> <%= gameResult.points %>/<%= gameResult.opponentPoints %> (<%= (((gameResult.points - gameResult.opponentPoints) > 0) ? '+':'') + (gameResult.points - gameResult.opponentPoints) %>)</span></td>
     <% }); %>
 
     <% for(var i = 0; i < gamePlayed - person.gamesResults.length; i++) { %>
