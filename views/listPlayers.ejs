@@ -58,7 +58,7 @@
 <% people.forEach(function(person, num) { %>
 <tr>
 
-    <td><%= num+1 %> <%= person.id %></td>
+    <td><%= num+1 %></td>
     <% if (isSuperEdit) { %>
         <td><a href="/<%= tournamentHash %>/deletePlayer/<%= person.id %>" class="btn btn-danger">delete</a></td>
     <% } %>
