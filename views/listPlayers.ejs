@@ -64,10 +64,22 @@
     <% } %>
     <td style="position: relative; height: 37px;">
 
-        <div style="position: absolute; top: -10px; <% if (num % 2 == 1) { %> left: 10px; <% } else { %> left: -25px; <% } %> width: 50px; height: 50px; z-index: 9000; border: 4px solid <%= person.color %>; box-shadow: 0 0 0 1px hsl(0, 0%, 80%); border-radius: 90px; font-size: 30px; background: #EEEEEE; text-align: center;">
-            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-        </div>
-        <!--<img src="https://pbs.twimg.com/profile_images/578135559362768896/jn2IdYpS.jpeg" class="img-circle" style="position: absolute; top: -10px; <% if (num % 2 == 1) { %> left: 10px; <% } else { %> left: -25px; <% } %> width: 50px; height: 50px; z-index: 9000; border: 4px solid <%= person.color %>; box-shadow: 0 0 0 1px hsl(0, 0%, 80%);">-->
+        <% if (isEditMode) { %>
+        <a href="/<%= tournamentHash %>/editPlayer/<%= person.id %>">
+        <% } %>
+        <% if (false && person.image) { %>
+            <img src="/static/<%= person.image %>" class="img-circle" style="position: absolute; top: -10px; <% if (num % 2 == 1) { %> left: 10px; <% } else { %> left: -25px; <% } %> width: 50px; height: 50px; z-index: 9000; border: 4px solid <%= person.color %>; box-shadow: 0 0 0 1px hsl(0, 0%, 80%);">
+        <% } else { %>
+            <div style="position: absolute; top: -10px; <% if (num % 2 == 1) { %> left: 10px; <% } else { %> left: -25px; <% } %> width: 50px; height: 50px; z-index: 9000; border: 4px solid <%= person.color %>; box-shadow: 0 0 0 1px hsl(0, 0%, 80%); border-radius: 90px; font-size: 30px; background: #EEEEEE; text-align: center;">
+                <div style="width: 30px; height: 30px; margin: 3px 0 0 6px;">
+                <%- person.icon %>
+                </div>
+            </div>
+        <% } %>
+
+        <% if (isEditMode) { %>
+        </a>
+        <% } %>
         <div style="padding-left:55px; white-space: nowrap ;">
             <%= person.firstName %> <%= person.lastName %>
         </div>

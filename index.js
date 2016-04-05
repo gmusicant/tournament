@@ -1,8 +1,11 @@
 /* libraries */
 
+var fs = require('fs');
+var path = require('path');
 var express = require('express');
 var ejs = require('ejs');
 var bodyParser = require('body-parser')
+var multer = require('multer');
 var _ = require('lodash');
 var cookieParser = require('cookie-parser')
 var treeChoises = require('./helpers/functions').treeChoises;
@@ -10,6 +13,7 @@ var prepareRender = new require('./helpers/functions').prepareRenderConstructor(
 var teamModel = require('./models/team');
 var tournamentModel = require('./models/tournament');
 var groupModel = require('./models/group');
+var colorModel = require('./models/color');
 var tournamentCollection = require('./collections/tournaments');
 var mongoose = require('mongoose');
 var hashids = new require('hashids')('anton', 1, 'qwertyuiopasdfghjklzxcvbnm1234567890');
@@ -34,10 +38,12 @@ var db = mongoose.connect(DB_URI);
 
 app.set('port', (process.env.PORT || 5000));
 app.set('view engine', 'ejs');
+app.use('/static', express.static('public')); // set up public foder
 app.use(bodyParser.json());       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
 }));
+var upload = multer({ dest: 'public/' })
 
 app.use(cookieParser());
 
@@ -356,7 +362,7 @@ app.get('/:tournamentHash/listPlayers', function (req, res) {
     tournamentModel.get(req.params.tournamentHash).then(function (tournament){
         teamModel.getAll(req.params.tournamentHash).then(function (people) {
 
-            listPlayers = _.map(people, function(player) {
+            listPlayers = _.map(people, function(player, num) {
                 player.points = _.sum(_.map(player.gamesResults, function(gameResult) {
                     return +gameResult.points - gameResult.opponentPoints;
                 }));
@@ -364,6 +370,8 @@ app.get('/:tournamentHash/listPlayers', function (req, res) {
                 player.wins = _.sum(_.map(player.gamesResults, function(gameResult) {
                     return Number(gameResult.points > gameResult.opponentPoints);
                 }));
+
+                player.icon = fs.readFileSync(__dirname + '/public/icons/animals-' + (num+1) + '.svg').toString();
 
                 return player;
             });
@@ -511,6 +519,8 @@ app.get('/:tournamentHash/listPlayersGroups', function (req, res) {
                                 }
                             }
 
+                            person.icon = fs.readFileSync(__dirname + '/public/icons/animals-' + Math.round(Math.random() * 80) + '.svg').toString();
+
                             return person;
 
                         }),
@@ -599,7 +609,8 @@ app.get('/:tournamentHash/listPlayersGroupsEdit', function (req, res) {
 
 app.get('/:tournamentHash/addPlayer', function (req, res) {
     tournamentModel.get(req.params.tournamentHash).then(function (tournament){
-        res.render('addPlayer', prepareRender.getRender({tournament: tournament}, req));
+        var colours = colorModel.getRandom(5);
+        res.render('addPlayer', prepareRender.getRender({tournament: tournament, colours: colours}, req));
     }).catch(function(err) {
         errorMessage = 'Error: ' + err;
         console.log(err);
@@ -607,15 +618,31 @@ app.get('/:tournamentHash/addPlayer', function (req, res) {
     });
 });
 
-app.post('/:tournamentHash/addPlayer', function (req, res) {
+app.post('/:tournamentHash/addPlayer', upload.single('newImage'), function (req, res) {
+
     teamModel.add({
         firstName: req.body.firstName,
         lastName: req.body.lastName,
+        color: req.body.color,
         playWith: [],
         gamesResults: [],
         tournamentHash: req.params.tournamentHash
-    }).then(function() {
-        res.redirect('/' + req.params.tournamentHash + '/listPlayers');
+    }).then(function(player) {
+
+        if (req.file && req.file.originalname) {
+            var parsed = path.parse(req.file.originalname);
+            if (parsed && parsed.ext && req.file.path) {
+                var newImage = player.id + parsed.ext;
+                fs.rename(__dirname + '/' +req.file.path, __dirname + '/public/' + newImage);
+                teamModel.update(player.id, {image: newImage}).then(function() {
+                    res.redirect('/' + req.params.tournamentHash + '/listPlayers');
+                });
+            } else {
+                res.redirect('/' + req.params.tournamentHash + '/listPlayers');
+            }
+        } else {
+            res.redirect('/' + req.params.tournamentHash + '/listPlayers');
+        }
     }).catch(function(err) {
         errorMessage = 'Error: ' + err;
         console.log(err);
@@ -625,6 +652,42 @@ app.post('/:tournamentHash/addPlayer', function (req, res) {
 
 app.get('/:tournamentHash/deletePlayer/:playerId', function (req, res) {
     teamModel.remove(req.params.playerId).then(function() {
+        res.redirect('/' + req.params.tournamentHash + '/listPlayers');
+    }).catch(function(err) {
+        errorMessage = 'Error: ' + err;
+        console.log(err);
+        res.redirect('/' + req.params.tournamentHash + '/listPlayers');
+    });
+});
+
+app.get('/:tournamentHash/editPlayer/:playerId', function (req, res) {
+    tournamentModel.get(req.params.tournamentHash).then(function (tournament){
+        teamModel.get(req.params.playerId).then(function(player) {
+            var colours = colorModel.getRandom(4);
+            res.render('editPlayer', prepareRender.getRender({player: player, tournament: tournament, colours: colours}, req));
+        }).catch(function(err) {
+            errorMessage = 'Error: ' + err;
+            res.redirect('/' + req.params.tournamentHash + '/listPlayers');
+        });
+    }).catch(function(err) {
+        errorMessage = 'Error: ' + err;
+        res.redirect('/' + req.params.tournamentHash + '/listPlayers');
+    });
+});
+
+app.post('/:tournamentHash/editPlayer/:playerId', upload.single('newImage'), function (req, res) {
+
+    var updateParams = req.body;
+
+    if (req.file && req.file.originalname) {
+        var parsed = path.parse(req.file.originalname);
+        if (parsed && parsed.ext && req.file.path) {
+            fs.rename(__dirname + '/' +req.file.path, __dirname + '/public/' + req.params.playerId + parsed.ext);
+            updateParams.image = req.params.playerId + parsed.ext;
+        }
+    }
+
+    teamModel.update(req.params.playerId, updateParams).then(function() {
         res.redirect('/' + req.params.tournamentHash + '/listPlayers');
     }).catch(function(err) {
         errorMessage = 'Error: ' + err;

@@ -1,0 +1,109 @@
+<%- include('header') %>
+
+<br/>
+<nav class="navbar navbar-default">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#"><%= tournament.title %></a>
+    </div>
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+
+            <li class="active"><a href="#">Add player</a></li>
+            <li><a href="/<%= tournamentHash %>/listPlayers">Players list</a></li>
+            <li><a href="/<%= tournamentHash %>/listPlayersGroups">Game board</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <% if (isLogin) { %>
+            <li><a href="/logout">Log out</a></li>
+            <% } %>
+            <% if (!isLogin) { %>
+            <li><a href="/login">Log in</a></li>
+            <% } %>
+        </ul>
+    </div>
+</nav>
+
+<div class="row">
+    <form action="/<%= tournamentHash %>/editPlayer/<%= player.id %>" method="post" enctype="multipart/form-data">
+        <div class="row">
+        <div class="form-group col-xs-2">
+            <div>
+                <img id="visibleImage" src="/static/<%= player.image %>" onclick="document.getElementById('newImage').click();" class="img-circle <%= (!player.image ? 'hidden': '') %>" style="width: 50px; height: 50px; z-index: 9000; border: 4px solid <%= player.color %>; box-shadow: 0 0 0 1px hsl(0, 0%, 80%);">
+            </div>
+            <div id="visibleColor" class="<%= (player.image ? 'hidden': '') %>" style="width: 50px; height: 50px; box-shadow: 0 0 0 1px hsl(0, 0%, 80%); border-radius: 90px; font-size: 30px; background: #EEEEEE; text-align: center; border: 4px solid <%= player.color %>;">
+                <span class="glyphicon glyphicon-user" aria-hidden="true" onclick="document.getElementById('newImage').click();"></span>
+                <input id="newImage" type="file" name="newImage" style="visibility:hidden" />
+                <input id="hiddenColor" type="hidden" name="color" value="<%= player.color %>">
+            </div>
+            <span style="font-size: 10px;">change image</span>
+        </div>
+        <div class="form-group col-xs-4">
+            <label>Change color</label><br/>
+            <div class="form-group col-xs-2">
+                <input type="submit" value="" onClick="return clickColor(this);" class="btn" ref-value="<%= player.color %>" style="background: <%= player.color %>">
+            </div>
+            <div class="form-group col-xs-2">
+                <input type="submit" value="" onClick="return clickColor(this);" class="btn" ref-value="<%= colours[0] %>" style="background: <%= colours[0] %>">
+            </div>
+            <div class="form-group col-xs-2">
+                <input type="submit" value="" onClick="return clickColor(this);" class="btn" ref-value="<%= colours[1] %>"  style="background: <%= colours[1] %>">
+            </div>
+            <div class="form-group col-xs-2">
+                <input type="submit" value="" onClick="return clickColor(this);" class="btn" ref-value="<%= colours[2] %>" style="background: <%= colours[2] %>">
+            </div>
+            <div class="form-group col-xs-2">
+                <input type="submit" value="" onClick="return clickColor(this);" class="btn" ref-value="<%= colours[3] %>" style="background: <%= colours[3] %>">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-xs-4">
+            <label for="firstName" >first name</label>
+            <br/>
+            <input id="firstName" type="text" name="firstName" class="form-control" value="<%= player.firstName %>"><br/>
+            <label for="lastName">last name</label>
+            <br/>
+            <input id="lastName" type="text" name="lastName" class="form-control" value="<%= player.lastName %>">
+            <br/>
+            <div class="pull-left">
+                <a href="/<%= tournamentHash %>/listPlayers" class="btn btn-danger">Back</a>
+            </div>
+            <div class="pull-right">
+                <input type="submit" value="go" class="btn btn-success ">
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    function clickColor(el) {
+        document.getElementById('visibleImage').style.border = '4px solid '+el.getAttribute('ref-value');
+        document.getElementById('visibleColor').style.border = '4px solid '+el.getAttribute('ref-value');
+        document.getElementById('hiddenColor').value = el.getAttribute('ref-value');
+        return false;
+    }
+
+    function showImage(src,target) {
+      var fr=new FileReader();
+      // when image is loaded, set the src of the image where you want to display it
+      fr.onload = function(e) {
+        document.getElementById('visibleImage').classList.remove('hidden');
+        document.getElementById('visibleColor').classList.add('hidden');
+        target.src = this.result;
+      };
+      src.addEventListener("change",function() {
+        // fill fr with image data
+        fr.readAsDataURL(src.files[0]);
+      });
+    }
+
+    var src = document.getElementById("newImage");
+    var target = document.getElementById("visibleImage");
+    showImage(src,target);
+</script>
+<%- include('footer') %>

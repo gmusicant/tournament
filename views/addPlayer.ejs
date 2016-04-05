@@ -29,8 +29,40 @@
     </div>
 </nav>
 
-<div class="row">
-    <form action="/<%= tournamentHash %>/addPlayer" method="post">
+<form action="/<%= tournamentHash %>/addPlayer" method="post" enctype="multipart/form-data">
+    <div class="row">
+        <div class="form-group col-xs-2">
+            <div>
+                <img id="visibleImage" src="" onclick="document.getElementById('newImage').click();" class="img-circle hidden" style="width: 50px; height: 50px; z-index: 9000; border: 4px solid <%= colours[0] %>; box-shadow: 0 0 0 1px hsl(0, 0%, 80%);">
+            </div>
+            <div id="visibleColor" style="width: 50px; height: 50px; box-shadow: 0 0 0 1px hsl(0, 0%, 80%); border-radius: 90px; font-size: 30px; background: #EEEEEE; text-align: center; border: 4px solid <%= colours[0] %>;">
+                <span class="glyphicon glyphicon-user" aria-hidden="true" onclick="document.getElementById('newImage').click();"></span>
+                <input id="newImage" type="file" name="newImage" style="visibility:hidden" />
+                <input id="hiddenColor" type="hidden" name="color" value="<%= colours[0] %>">
+            </div>
+            <span style="font-size: 10px;">change image</span>
+        </div>
+
+        <div class="form-group col-xs-4">
+            <label>Change color</label><br/>
+            <div class="form-group col-xs-1">
+                <input type="submit" value="" onClick="return clickColor(this);" class="btn" ref-value="<%= colours[0] %>" style="background: <%= colours[0] %>">
+            </div>
+            <div class="form-group col-xs-1">
+                <input type="submit" value="" onClick="return clickColor(this);" class="btn" ref-value="<%= colours[1] %>" style="background: <%= colours[1] %>">
+            </div>
+            <div class="form-group col-xs-1">
+                <input type="submit" value="" onClick="return clickColor(this);" class="btn" ref-value="<%= colours[2] %>"  style="background: <%= colours[2] %>">
+            </div>
+            <div class="form-group col-xs-1">
+                <input type="submit" value="" onClick="return clickColor(this);" class="btn" ref-value="<%= colours[3] %>" style="background: <%= colours[3] %>">
+            </div>
+            <div class="form-group col-xs-1">
+                <input type="submit" value="" onClick="return clickColor(this);" class="btn" ref-value="<%= colours[4] %>" style="background: <%= colours[4] %>">
+            </div>
+        </div>
+    </div>
+    <div class="row">
         <div class="form-group col-xs-4">
             <label for="firstName" >first name</label>
             <br/>
@@ -48,4 +80,29 @@
         </div>
     </form>
 </div>
+<script>
+    function clickColor(el) {
+        document.getElementById('visibleImage').style.border = '4px solid '+el.getAttribute('ref-value');
+        document.getElementById('visibleColor').style.border = '4px solid '+el.getAttribute('ref-value');
+        document.getElementById('hiddenColor').value = el.getAttribute('ref-value');
+        return false;
+    }
+    function showImage(src,target) {
+      var fr=new FileReader();
+      // when image is loaded, set the src of the image where you want to display it
+      fr.onload = function(e) {
+        document.getElementById('visibleImage').classList.remove('hidden');
+        document.getElementById('visibleColor').classList.add('hidden');
+        target.src = this.result;
+      };
+      src.addEventListener("change",function() {
+        // fill fr with image data
+        fr.readAsDataURL(src.files[0]);
+      });
+    }
+
+    var src = document.getElementById("newImage");
+    var target = document.getElementById("visibleImage");
+    showImage(src,target);
+</script>
 <%- include('footer') %>
