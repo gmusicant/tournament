@@ -3,13 +3,18 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "watch": {
+    "test": "{src,test}/*.js"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "watchify ./components/index.js --transform reactify -o ./assets/js/index.js & node index.js"
   },
   "author": "Anton Popov",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.15.0",
+    "browserify": "^13.0.0",
     "connect-busboy": "0.0.2",
     "cookie-parser": "^1.4.1",
     "ejs": "^2.4.1",
@@ -17,6 +22,11 @@
     "hashids": "^1.0.2",
     "lodash": "^4.6.1",
     "mongoose": "^4.4.9",
-    "multer": "^1.1.0"
+    "multer": "^1.1.0",
+    "node-jsx": "^0.13.3",
+    "react": "^15.0.1",
+    "react-bootstrap": "^0.28.5",
+    "reactify": "^1.1.1",
+    "watchify": "^3.7.0"
   }
 }

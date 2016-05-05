@@ -2,7 +2,7 @@ var _ = require('lodash');
 var fs = require('fs');
 var hashids = new require('hashids')('anton123123', 3, 'qwertyuiopasdfghjklzxcvbnm1234567890');
 
-function treeChoises(collection, level, isReadOnly) {
+function treeChoises(collection, platWith, level, isReadOnly) {
 
     var groups = [];
     var firstElement = _.head(collection);
@@ -23,7 +23,7 @@ function treeChoises(collection, level, isReadOnly) {
 
                  if (_.size(tmpCollection) >= 2) {
 
-                    subGroups = treeChoises(_.slice(tmpCollection, 0), level + 1);
+                    subGroups = treeChoises(_.slice(tmpCollection, 0), platWith, level + 1, isReadOnly);
                     if (_.size(subGroups) > 0) {
                         groups = subGroups;
                         groups.push([firstElement.id, nextElement.id]);
