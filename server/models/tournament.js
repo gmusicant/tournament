@@ -1,6 +1,6 @@
-var tournamentDBModel = require('../db/models/tournament');
-var autoincrementModel = require('./autoincrement');
-var helpers = require('../helpers/functions');
+var tournamentDBModel = require('./../db/models/tournament.js');
+var autoincrementModel = require('./autoincrement.js');
+var helpers = require('./../helpers/functions.js');
 
 var _ = require('lodash');
 
