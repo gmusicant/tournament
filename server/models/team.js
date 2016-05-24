@@ -1,5 +1,6 @@
 var teamDBModel = require('./../db/models/team');
 var autoincrementModel = require('./autoincrement');
+var tournamentModel = require('./tournament');
 var helpers = require('./../helpers/functions');
 
 var _ = require('lodash');
@@ -43,6 +44,16 @@ teamModel.removePerson = function(tournamentHash, teamHash, personData) {
             return teamDBModel.updateByHashAndGet(tournamentHash, teamHash, team);
         } else {
             return team;
+        }
+    });
+}
+
+teamModel.removeByHash = function(tournamentHash, teamHash) {
+    return tournamentModel.getOne(tournamentHash).then(function (tournament) {
+        if (!tournament || !tournament.rounds || tournament.rounds.length === 0) {
+            return teamDBModel.removeByHash(tournamentHash, teamHash);
+        } else {
+            return teamDBModel.update(tournamentHash, teamHash, {active: false});
         }
     });
 }

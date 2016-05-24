@@ -5,6 +5,7 @@ var Team = mongoose.model('Team', {
     hash: { type: String, index: true },
     tournamentHash: { type: String, index: true },
     teamNumber: Number,
+    active: Boolean,
     poeple: [{
         firstName: String,
         lastName: String,
