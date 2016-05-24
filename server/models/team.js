@@ -13,6 +13,17 @@ var teamModel = {};
 
 /* extend model here */
 
+teamModel.getAll = function(tournamentHash) {
+    return teamDBModel.getAll(tournamentHash).then(function(teams) {
+        _.forEach(teams, function(team) {
+            if (_.isUndefined(team.active)) {
+                team.active = true;
+            }
+        });
+        return teams;
+    })
+}
+
 teamModel.add = function (tournamentHash, params) {
     return autoincrementModel.getNextSequence(teamAutoincrement).then(function (nextId) {
         return autoincrementModel.getNextSequence(teamAutoincrementInTournament + tournamentHash).then(function (nextTeamId) {
@@ -53,7 +64,7 @@ teamModel.removeByHash = function(tournamentHash, teamHash) {
         if (!tournament || !tournament.rounds || tournament.rounds.length === 0) {
             return teamDBModel.removeByHash(tournamentHash, teamHash);
         } else {
-            return teamDBModel.update(tournamentHash, teamHash, {active: false});
+            return teamDBModel.updateByHash(tournamentHash, teamHash, {active: false});
         }
     });
 }

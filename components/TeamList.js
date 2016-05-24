@@ -27,7 +27,9 @@ var TeamList = React.createClass({
   render: function() {
     var rows = [];
     for (var i=0; i < this.state.teams.length; i++) {
-        rows.push(<TeamListRow key={i} team={this.state.teams[i]} tournamentHash={this.props.params.tournamentHash} reloadList={this.componentDidMount.bind(this)}/>);
+        if (this.state.teams[i].active) {
+            rows.push(<TeamListRow key={i} team={this.state.teams[i]} tournamentHash={this.props.params.tournamentHash} reloadList={this.componentDidMount.bind(this)}/>);
+        }
     }
 
     var addTeamUrl = "/client/tournament/" + this.props.params.tournamentHash + "/team/add";
