@@ -1,6 +1,7 @@
 var React = require('react');
 var Table = require('react-bootstrap').Table;
 var Label = require('react-bootstrap').Label;
+var Button = require('react-bootstrap').Button;
 var _ = require('lodash');
 
 var TournamentResultSweed = React.createClass({
@@ -10,6 +11,16 @@ var TournamentResultSweed = React.createClass({
             tournament: [],
             teams: []
         };
+    },
+
+    clickTour: function () {
+        var body = document.body,
+        html = document.documentElement;
+
+        var height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+        $('html, body').animate({
+          scrollTop: height
+        }, 52000);
     },
 
     render: function() {
@@ -44,6 +55,8 @@ var TournamentResultSweed = React.createClass({
                         results.splice(resultIndex, 1);
                         var scoreB = results[0].score;
 
+                        var teamB = _.find(teams, {hash: results[0].teamHash});
+
                         team.wins += (scoreA > scoreB);
                         team.points += scoreA - scoreB;
 
@@ -54,7 +67,11 @@ var TournamentResultSweed = React.createClass({
                             labelType = (scoreA > scoreB) ? 'success' : 'danger';
 
                         scoreString = (
-                            <Label bsStyle={labelType}>{scoreA}/{scoreB}({scoreA - scoreB})</Label>
+                            <div>
+                                <Label bsStyle={labelType}>{scoreA}/{scoreB}({scoreA - scoreB})</Label>
+                                <br/>
+                                <Label className="teamName">{teamB.title}</Label>
+                            </div>
                         );
 
                     }
@@ -76,21 +93,25 @@ var TournamentResultSweed = React.createClass({
             for(var i = 0; i < maxRounds; i++) {
 
                 var game = _.clone(_.find(rounds[i].games, function(el) {
-                    return el.game.indexOf(team.hash) >= 0;
+                    return el.game.indexOf(team.hash) !== -1;
                 }));
 
-                var game = _.clone(game.game);
+                if (game && game.game) {
 
-                var teamHashIndex = game.indexOf(team.hash);
-                if (teamHashIndex !== -1) {
+                    var game = _.clone(game.game);
 
-                    game.splice(teamHashIndex, 1);
+                    var teamHashIndex = game.indexOf(team.hash);
+                    if (teamHashIndex !== -1) {
 
-                    var teamBHash = game[0];
-                    var teamB = _.find(teams, {hash: teamBHash});
+                        game.splice(teamHashIndex, 1);
 
-                    if (teamB) {
-                        teamB.buhgolts += team.wins;
+                        var teamBHash = game[0];
+                        var teamB = _.find(teams, {hash: teamBHash});
+
+                        if (teamB) {
+                            teamB.buhgolts += team.wins;
+                        }
+
                     }
 
                 }
@@ -123,6 +144,10 @@ var TournamentResultSweed = React.createClass({
                 <td key={'resulthead-' + i}>Round {i+1}</td>
             );
         }
+
+        // <div className="gameResult-tour">
+        //     <Button onClick={this.clickTour}>Tour</Button>
+        // </div>
 
         return (
           <div className="comment">

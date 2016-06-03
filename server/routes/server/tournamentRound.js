@@ -18,6 +18,9 @@ AppRouter.route('/server/tournament/:tournamentHash/tournamentRound')
 AppRouter.route('/server/tournament/:tournamentHash/tournamentRound/shuffle')
     .post(controller.shuffle);
 
+AppRouter.route('/server/tournament/:tournamentHash/tournamentRound/importTeams')
+    .post(controller.importTeams);
+
 // AppRouter.route('/server/tournament/:tournamentHash/tournamentRound/:tournamentRoundHash')
 //     .put(controller.put);
 

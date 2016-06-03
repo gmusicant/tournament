@@ -33,6 +33,73 @@ function sortForRound(rounds, teams) {
     return _.orderBy(teams, ['wins'], ['asc']);
 }
 
+function sortForImport(rounds, teams) {
+
+    _.forEach(teams, function(team) {
+        team.wins = 0;
+        team.buhgolts = 0;
+        team.score = 0;
+        team.playWith = [];
+    });
+
+    _.forEach(rounds, function(round) {
+
+        _.forEach(round.games, function(game) {
+
+            if (game.results && game.results[0] && game.results[1] && game.results[0].teamHash && game.results[1].teamHash) {
+                var winnerIndex = null;
+                var looserIndex = null;
+                var scoreDiff = 0;
+                if (game.results[0].score > game.results[1].score) {
+                    winnerIndex = 0;
+                    looserIndex = 1;
+                    scoreDiff = game.results[0].score - game.results[1].score;
+                } else if (game.results[0].score < game.results[1].score) {
+                    winnerIndex = 1;
+                    looserIndex = 0;
+                    scoreDiff = game.results[1].score - game.results[0].score;
+                }
+
+                if (!_.isNull(winnerIndex)) {
+                    var teamWinner = _.find(teams, {hash: game.results[winnerIndex].teamHash});
+                    if (teamWinner) {
+                        teamWinner.wins++;
+                        teamWinner.playWith.push(game.results[looserIndex].teamHash);
+                        teamWinner.score = teamWinner.score + scoreDiff;
+                    }
+                }
+
+                if (!_.isNull(looserIndex)) {
+                    var teamLooser = _.find(teams, {hash: game.results[looserIndex].teamHash});
+                    if (teamLooser) {
+                        teamLooser.playWith.push(game.results[winnerIndex].teamHash);
+                        teamLooser.score = teamLooser.score - scoreDiff;
+                    }
+                }
+            }
+
+        });
+    });
+
+    _.forEach(teams, function(team) {
+
+        team.buhgolts = _.sum(_.map(team.playWith, function(teamHash) {
+
+            var oponent = _.find(teams, {hash: teamHash});
+            if (oponent && oponent.wins) {
+                return oponent.wins;
+            }
+
+            return 0;
+
+        }));
+
+    });
+
+    return _.orderBy(teams, ['wins', 'buhgolts', 'score'], ['desc', 'desc', 'desc']);
+
+}
+
 function breakToGames(rounds, teams) {
 
     var gamesFlat = _.map(rounds, function(round) {
@@ -104,5 +171,6 @@ function treeChoises(teams, playWith, level, isReadOnly) {
 
 module.exports = {
     sortForRound: sortForRound,
-    breakToGames: breakToGames
+    breakToGames: breakToGames,
+    sortForImport: sortForImport
 }

@@ -33,6 +33,12 @@ module.exports = {
         });
     },
 
+    importTeams: function(req, res) {
+        tournamentRoundModel.importTeams(req.params.tournamentHash, req.body.importTeamsFrom, req.body.importTeamsPlaces).then(function() {
+            requests.resultSuccess(res);
+        });
+    },
+
     // put: function (req, res) {
     //     tournamentRoundModel.update(req.params.tournamentHash, req.params.tournamentRoundHash, req.body).then(function(tournamentRound) {
     //         requests.resultSuccess(res, {tournamentRound: tournamentRound});

@@ -16,3 +16,25 @@
 .jQBracket .tools{
     display: none;
 }
+
+.float-right {
+    float: right;
+}
+
+@media print {
+    span.label {
+        border: 0px;
+    }
+
+    span.label-success {
+        border: 1px solid black;
+    }
+
+    .nav {
+        display: none;
+    }
+
+    .gameResult-tour {
+        display: none;
+    }
+}

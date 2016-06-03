@@ -35,6 +35,13 @@ tournamentRoundModel.getLastOne = function (tournamentHash) {
     });
 };
 
+tournamentRoundModel.getCount = function (tournamentHash) {
+    return tournamentDBModel.getOneByHash(tournamentHash).then(function(tournament) {
+        return tournament.rounds.length;
+    });
+};
+
+
 // tournamentRoundModel.update = function (tournamentHash, roundHash, params) {
 //     return tournamentDBModel.getOneByHash(tournamentHash).then(function(tournament) {
 //         var round = {};
@@ -124,12 +131,53 @@ tournamentRoundModel.shuffle = function (tournamentHash) {
         });
 }
 
+tournamentRoundModel.importTeams = function (tournamentHash, importTeamsFrom, importTeamsPlaces) {
+
+    return tournamentRoundProcessModel.init(importTeamsFrom)
+        .then(function (tournamentProcessor) {
+
+            return tournamentRoundModel.getAll(importTeamsFrom)
+                .then(function (tournamentRounds) {
+
+                    return teamModel.getAll(importTeamsFrom)
+                        .then(tournamentProcessor.sortForImport.bind(null, tournamentRounds))
+                        .then(function(teams) {
+
+                            var teamsSorted = _.map(teams, function (team) { return _.pick(team, ['title', 'wins', 'buhgolts', 'score']) } );
+
+                            _.forEach(importTeamsPlaces, function(place) {
+
+                                var currentPlace = _.toNumber(place) - 1;
+
+                                if (teamsSorted[currentPlace]) {
+                                    teamModel.add(tournamentHash, _.pick(teamsSorted[currentPlace], ['title']));
+                                }
+
+                            });
+
+                            return true;
+
+                        }).catch(function(error) {
+                            console.log(error);
+                        });
+
+                }).catch(function(error) {
+                    console.log(error);
+                });
+        }).catch(function(error) {
+            console.log(error);
+        });
+
+}
+
 module.exports = {
     getAll: tournamentRoundModel.getAll,
     getOne: tournamentRoundModel.getOneByHash,
     getLastOne: tournamentRoundModel.getLastOne,
+    getCount: tournamentRoundModel.getCount,
     // update: tournamentRoundModel.update,
     add: tournamentRoundModel.add,
     remove: tournamentRoundModel.remove,
-    shuffle: tournamentRoundModel.shuffle
+    shuffle: tournamentRoundModel.shuffle,
+    importTeams: tournamentRoundModel.importTeams
 };

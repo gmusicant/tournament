@@ -5,6 +5,10 @@ function sortForRound(rounds, teams) {
     return teams;
 }
 
+function sortForImport(rounds, teams) {
+    return teams;
+}
+
 function breakToGames(rounds, teams) {
 
     var winners = [];
@@ -63,5 +67,6 @@ function breakToGames(rounds, teams) {
 
 module.exports = {
     sortForRound: sortForRound,
-    breakToGames: breakToGames
+    breakToGames: breakToGames,
+    sortForImport: sortForImport
 }

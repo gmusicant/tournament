@@ -922,6 +922,10 @@ var React = require('react');
 var CommentBox = require('./CommentBox');
 var Nav = require('react-bootstrap').Nav;
 var NavItem = require('react-bootstrap').NavItem;
+var Grid = require('react-bootstrap').Grid;
+var Row = require('react-bootstrap').Row;
+var Col = require('react-bootstrap').Col;
+
 var browserHistory = require('react-router').browserHistory;
 
 var TournamentList = require('./TournamentList.js');
@@ -934,6 +938,29 @@ var ReactApp = React.createClass({displayName: "ReactApp",
         browserHistory.push(href);
     },
 
+    getInitialState: function() {
+        return {
+            tournamentTitle: 'Petanque Calculator',
+            titleLoaded: false
+        };
+    },
+
+    componentDidMount: function() {
+        $.ajax({
+            url: '/server/tournament/' + this.props.params.tournamentHash,
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                if (data.tournament) {
+                    this.setState({tournamentTitle: data.tournament.title, titleLoaded: true});
+                }
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props, status, err.toString());
+            }.bind(this)
+        });
+    },
+
     render: function (){
 
         var teamListUrl = '/client/tournament/' + this.props.params.tournamentHash + '/team/list/';
@@ -941,16 +968,31 @@ var ReactApp = React.createClass({displayName: "ReactApp",
         var tournamentListUrl = '/client/tournament/list/' + this.props.params.tournamentHash;
         var tournamentResultUrl = '/client/tournament/result/' + this.props.params.tournamentHash;
         var disambeTournamentLinks = !this.props.params.tournamentHash;
+        var microTitle, nav;
+
+        if (this.state.titleLoaded) {
+            microTitle = (
+                React.createElement("small", null, "Petanque Calculator")
+            );
+        }
+
+        nav = '';
+        if (!this.props.location.query || !this.props.location.query.iframe) {
+            nav = (React.createElement(Nav, {bsStyle: "tabs", activeHref: this.props.location.pathname, onSelect: this.handleSelect}, 
+                React.createElement(NavItem, {eventKey: 1, href: teamListUrl, title: "Team list", disabled: disambeTournamentLinks}, "Team list"), 
+                React.createElement(NavItem, {eventKey: 2, href: gameListUrl, title: "Game list", disabled: disambeTournamentLinks}, "Game list"), 
+                React.createElement(NavItem, {eventKey: 2, href: tournamentResultUrl, title: "Tournament result", disabled: disambeTournamentLinks}, "Tournament result"), 
+                React.createElement(NavItem, {eventKey: 3, href: tournamentListUrl, title: "Tournament list"}, "Tournament list")
+            ));
+        }
 
         return (
             React.createElement("div", null, 
-                React.createElement("h1", null, "Petanque calculator"), 
-                React.createElement(Nav, {bsStyle: "tabs", activeHref: this.props.location.pathname, onSelect: this.handleSelect}, 
-                    React.createElement(NavItem, {eventKey: 1, href: teamListUrl, title: "Team list", disabled: disambeTournamentLinks}, "Team list"), 
-                    React.createElement(NavItem, {eventKey: 2, href: gameListUrl, title: "Game list", disabled: disambeTournamentLinks}, "Game list"), 
-                    React.createElement(NavItem, {eventKey: 2, href: tournamentResultUrl, title: "Tournament result", disabled: disambeTournamentLinks}, "Tournament result"), 
-                    React.createElement(NavItem, {eventKey: 3, href: tournamentListUrl, title: "Tournament list"}, "Tournament list")
+                React.createElement("div", {className: "text-right float-right"}, 
+                    microTitle
                 ), 
+                React.createElement("h1", null, this.state.tournamentTitle), 
+                nav, 
                 this.props.children
             )
         )
@@ -1093,7 +1135,9 @@ var TeamList = React.createClass({displayName: "TeamList",
   render: function() {
     var rows = [];
     for (var i=0; i < this.state.teams.length; i++) {
-        rows.push(React.createElement(TeamListRow, {key: i, team: this.state.teams[i], tournamentHash: this.props.params.tournamentHash, reloadList: this.componentDidMount.bind(this)}));
+        if (this.state.teams[i].active) {
+            rows.push(React.createElement(TeamListRow, {key: i, team: this.state.teams[i], tournamentHash: this.props.params.tournamentHash, reloadList: this.componentDidMount.bind(this)}));
+        }
     }
 
     var addTeamUrl = "/client/tournament/" + this.props.params.tournamentHash + "/team/add";
@@ -1180,6 +1224,7 @@ var React = require('react');
 var Input = require('react-bootstrap').Input;
 var Button = require('react-bootstrap').Button;
 var browserHistory = require('react-router').browserHistory;
+var _ = require('lodash');
 
 
 var TournamentEdit = React.createClass({displayName: "TournamentEdit",
@@ -1192,7 +1237,11 @@ var TournamentEdit = React.createClass({displayName: "TournamentEdit",
                 type: 'swiss'
                 // startDate: Date.new(),
                 // endDate: Date.new(),
-            }
+            },
+            tournaments: [],
+            importTeamsFrom: '',
+            importTeamsPlaces: [],
+            importTeamsValue: ''
         };
     },
 
@@ -1205,6 +1254,18 @@ var TournamentEdit = React.createClass({displayName: "TournamentEdit",
                 cache: false,
                 success: function(data) {
                     this.setState({tournament: data.tournament});
+                }.bind(this),
+                error: function(xhr, status, err) {
+                    console.error(this.props, status, err.toString());
+                }.bind(this)
+            });
+
+            $.ajax({
+                url: '/server/tournament/',
+                dataType: 'json',
+                cache: false,
+                success: function(data) {
+                    this.setState({tournaments: data.tournaments});
                 }.bind(this),
                 error: function(xhr, status, err) {
                     console.error(this.props, status, err.toString());
@@ -1242,6 +1303,28 @@ var TournamentEdit = React.createClass({displayName: "TournamentEdit",
             }.bind(this)
         });
 
+        if (!this.props.isNew) {
+
+            url = url + '/tournamentRound/importTeams';
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: {
+                    importTeamsFrom: this.state.importTeamsFrom,
+                    importTeamsPlaces: this.state.importTeamsPlaces,
+                },
+                cache: false,
+                success: function(data) {
+                    browserHistory.goBack();
+                }.bind(this),
+                error: function(xhr, status, err) {
+                    console.error(this.props, status, err.toString());
+                }.bind(this)
+            });
+
+        }
+
     },
 
     onChangeInput: function(fieldName, event) {
@@ -1249,9 +1332,57 @@ var TournamentEdit = React.createClass({displayName: "TournamentEdit",
         this.setState({tournament: this.state.tournament});
     },
 
+    onChangeTournamentImportFrom: function(event) {
+        this.setState({importTeamsFrom: event.target.value});
+    },
+
+    onChangeTournamentImportTeams: function(event) {
+
+        var value = event.target.value.replace(/[^\d\,\-\ ]/g, '');
+        var teamPlaces = [];
+
+        this.setState({importTeamsValue: value})
+
+        value = event.target.value.replace(' ', '');
+
+        var teamsCommaSplitted = value.split(',');
+        _.forEach(teamsCommaSplitted, function(teamCommaSplitted) {
+            var teamsMinusSplitted = teamCommaSplitted.split('-');
+            if (teamsMinusSplitted.length === 2) {
+                if (teamsMinusSplitted[0].trim() && teamsMinusSplitted[1].trim()) {
+                    teamPlaces = _.concat(teamPlaces, _.range(teamsMinusSplitted[0], _.toNumber(teamsMinusSplitted[1]) + 1));
+                }
+            } else if (teamsMinusSplitted.length === 1) {
+                if (teamsMinusSplitted[0].trim()) {
+                    teamPlaces.push(_.toNumber(teamsMinusSplitted[0].trim()));
+                }
+            }
+        });
+        this.setState({importTeamsPlaces: teamPlaces});
+    },
+
     render: function() {
 
         var h2Title = this.props.isNew ? 'Add' : 'Edit';
+
+        var tournamentRows = _.map(this.state.tournaments, function(tournament) {
+            return (
+                React.createElement("option", {key: tournament.hash, value: tournament.hash}, tournament.title)
+            );
+        });
+        tournamentRows.push(
+            React.createElement("option", {key: "", value: ""}, "Select tournament for import")
+        );
+        var importTeamsFrom = this.props.isNew ? '' : (
+            React.createElement(Input, {type: "select", label: "Import from tournament", value: this.state.importTeamsFrom, onChange: this.onChangeTournamentImportFrom}, 
+                tournamentRows
+            )
+        );
+
+
+        var importTeamsPlaces = this.props.isNew ? '' : (
+            React.createElement(Input, {type: "text", value: this.state.importTeamsValue, label: "Import team places", placeholder: "Example: 1-5, 7, 9-12", onChange: this.onChangeTournamentImportTeams})
+        );
 
         var rows = [];
         rows.push(React.createElement("option", {key: "swiss", value: "swiss"}, "swiss"));
@@ -1267,6 +1398,8 @@ var TournamentEdit = React.createClass({displayName: "TournamentEdit",
                 React.createElement(Input, {type: "select", label: "Type", value: this.state.type, onChange: this.onChangeInput.bind(this, 'type')}, 
                     rows
                 ), 
+                importTeamsFrom, 
+                importTeamsPlaces, 
                 React.createElement(Button, {bsStyle: "default", onClick: this.cancelEdit}, "Cancel"), " ", 
                 React.createElement(Button, {bsStyle: "warning", onClick: this.submitForm}, h2Title)
             )
@@ -1277,7 +1410,7 @@ var TournamentEdit = React.createClass({displayName: "TournamentEdit",
 
 module.exports = TournamentEdit;
 
-},{"react":501,"react-bootstrap":108,"react-router":309}],20:[function(require,module,exports){
+},{"lodash":27,"react":501,"react-bootstrap":108,"react-router":309}],20:[function(require,module,exports){
 var React = require('react');
 var Table = require('react-bootstrap').Table;
 var TournamentListRow = require('./TournamentListRow.js');
@@ -1628,6 +1761,7 @@ module.exports = TournamentResultOlympic;
 var React = require('react');
 var Table = require('react-bootstrap').Table;
 var Label = require('react-bootstrap').Label;
+var Button = require('react-bootstrap').Button;
 var _ = require('lodash');
 
 var TournamentResultSweed = React.createClass({displayName: "TournamentResultSweed",
@@ -1637,6 +1771,16 @@ var TournamentResultSweed = React.createClass({displayName: "TournamentResultSwe
             tournament: [],
             teams: []
         };
+    },
+
+    clickTour: function () {
+        var body = document.body,
+        html = document.documentElement;
+
+        var height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+        $('html, body').animate({
+          scrollTop: height
+        }, 52000);
     },
 
     render: function() {
@@ -1671,6 +1815,8 @@ var TournamentResultSweed = React.createClass({displayName: "TournamentResultSwe
                         results.splice(resultIndex, 1);
                         var scoreB = results[0].score;
 
+                        var teamB = _.find(teams, {hash: results[0].teamHash});
+
                         team.wins += (scoreA > scoreB);
                         team.points += scoreA - scoreB;
 
@@ -1681,7 +1827,11 @@ var TournamentResultSweed = React.createClass({displayName: "TournamentResultSwe
                             labelType = (scoreA > scoreB) ? 'success' : 'danger';
 
                         scoreString = (
-                            React.createElement(Label, {bsStyle: labelType}, scoreA, "/", scoreB, "(", scoreA - scoreB, ")")
+                            React.createElement("div", null, 
+                                React.createElement(Label, {bsStyle: labelType}, scoreA, "/", scoreB, "(", scoreA - scoreB, ")"), 
+                                React.createElement("br", null), 
+                                React.createElement(Label, {className: "teamName"}, teamB.title)
+                            )
                         );
 
                     }
@@ -1703,21 +1853,25 @@ var TournamentResultSweed = React.createClass({displayName: "TournamentResultSwe
             for(var i = 0; i < maxRounds; i++) {
 
                 var game = _.clone(_.find(rounds[i].games, function(el) {
-                    return el.game.indexOf(team.hash) >= 0;
+                    return el.game.indexOf(team.hash) !== -1;
                 }));
 
-                var game = _.clone(game.game);
+                if (game && game.game) {
 
-                var teamHashIndex = game.indexOf(team.hash);
-                if (teamHashIndex !== -1) {
+                    var game = _.clone(game.game);
 
-                    game.splice(teamHashIndex, 1);
+                    var teamHashIndex = game.indexOf(team.hash);
+                    if (teamHashIndex !== -1) {
 
-                    var teamBHash = game[0];
-                    var teamB = _.find(teams, {hash: teamBHash});
+                        game.splice(teamHashIndex, 1);
 
-                    if (teamB) {
-                        teamB.buhgolts += team.wins;
+                        var teamBHash = game[0];
+                        var teamB = _.find(teams, {hash: teamBHash});
+
+                        if (teamB) {
+                            teamB.buhgolts += team.wins;
+                        }
+
                     }
 
                 }
@@ -1750,6 +1904,10 @@ var TournamentResultSweed = React.createClass({displayName: "TournamentResultSwe
                 React.createElement("td", {key: 'resulthead-' + i}, "Round ", i+1)
             );
         }
+
+        // <div className="gameResult-tour">
+        //     <Button onClick={this.clickTour}>Tour</Button>
+        // </div>
 
         return (
           React.createElement("div", {className: "comment"}, 
