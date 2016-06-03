@@ -1560,7 +1560,7 @@ var TournamentResult = React.createClass({displayName: "TournamentResult",
             if (this.state.tournament.type == 'swiss') {
                 roundList = (React.createElement(TournamentResultSwiss, {teams: this.state.teams, tournament: this.state.tournament}));
             } else if (this.state.tournament.type == 'olympic') {
-                roundList = (React.createElement(TournamentResultOlympic, {teams: this.state.teams, tournament: this.state.tournament}));
+                roundList = (React.createElement(TournamentResultOlympic, {teams: this.state.teams, tournament: this.state.tournament, location: this.props.location}));
             }
         }
 
@@ -1735,10 +1735,15 @@ var TournamentResultOlympic = React.createClass({displayName: "TournamentResultO
           "results": results
         };
 
-        $('#bracket').bracket({
-          init: singleElimination,
-          save: this.saveScores
-        });
+        var prepareData = {
+            init: singleElimination,
+        };
+
+        if (!this.props.location.query || !this.props.location.query.iframe) {
+            prepareData['save'] = this.saveScores;
+        }
+
+        $('#bracket').bracket(prepareData);
 
     },
 

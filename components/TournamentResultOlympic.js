@@ -156,10 +156,15 @@ var TournamentResultOlympic = React.createClass({
           "results": results
         };
 
-        $('#bracket').bracket({
-          init: singleElimination,
-          save: this.saveScores
-        });
+        var prepareData = {
+            init: singleElimination,
+        };
+
+        if (!this.props.location.query || !this.props.location.query.iframe) {
+            prepareData['save'] = this.saveScores;
+        }
+
+        $('#bracket').bracket(prepareData);
 
     },
 

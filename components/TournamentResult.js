@@ -50,7 +50,7 @@ var TournamentResult = React.createClass({
             if (this.state.tournament.type == 'swiss') {
                 roundList = (<TournamentResultSwiss teams={this.state.teams} tournament={this.state.tournament}/>);
             } else if (this.state.tournament.type == 'olympic') {
-                roundList = (<TournamentResultOlympic teams={this.state.teams} tournament={this.state.tournament}/>);
+                roundList = (<TournamentResultOlympic teams={this.state.teams} tournament={this.state.tournament} location={this.props.location}/>);
             }
         }
 
