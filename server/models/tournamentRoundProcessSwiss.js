@@ -117,15 +117,15 @@ function breakToGames(rounds, teams) {
         return ret;
     })
 
-    //console.log(_.map(teams, function(team) { var r = {}; r[team.hash] = team.wins; return r; }));
     var teamHashes = _.map(teams, function(team) { return team.hash; });
-    var ret = treeChoises(teamHashes, playWith, 1, false);//_.chunk(teamHashes, 2);
+    var ret = treeChoises(_.reverse(teamHashes), playWith, 1, false);
     return ret;
 }
 
 function treeChoises(teams, playWith, level, isReadOnly) {
 
     var groups = [];
+    var removedElemetns = [];
     var firstElement = _.head(teams);
     var tmpTeams;
     var isCompleted = false;
@@ -135,7 +135,7 @@ function treeChoises(teams, playWith, level, isReadOnly) {
 
     _.forEach(tmpTeams, function(nextElement, nextElementPosition) {
 
-        if (!isCompleted) {
+        if (!isCompleted && !_.find(removedElemetns, nextElement)) {
 
             var searchElement = {};
             searchElement[firstElement] = nextElement;
@@ -144,11 +144,13 @@ function treeChoises(teams, playWith, level, isReadOnly) {
 
             if (!_.find(playWith, searchElement) && !_.find(playWith, searchReversElement)) {
 
-                 tmpTeams.splice(nextElementPosition, 1);
+                var tmpTeamsCloned = _.clone(tmpTeams);
+                tmpTeamsCloned.splice(nextElementPosition, 1);
+                removedElemetns.push(nextElement);
 
                  if (_.size(tmpTeams) >= 2) {
 
-                    subGroups = treeChoises(tmpTeams, playWith, level + 1, isReadOnly);
+                    subGroups = treeChoises(tmpTeamsCloned, playWith, level + 1, isReadOnly);
                     if (_.size(subGroups) > 0) {
                         groups = subGroups;
                         groups.push([firstElement, nextElement]);
@@ -165,6 +167,10 @@ function treeChoises(teams, playWith, level, isReadOnly) {
         }
 
     });
+
+    // TODO: uncomment this line to rendomize field
+    // groups = _.shuffle(groups);
+    groups = _.reverse(groups);
 
     return groups;
 }
