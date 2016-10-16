@@ -127,7 +127,11 @@ tournamentRoundModel.shuffle = function (tournamentHash) {
                             console.log(err);
                         });
 
+                }).catch(function(err) {
+                    console.log(err);
                 });
+        }).catch(function(err) {
+            console.log(err);
         });
 }
 

@@ -115,10 +115,16 @@ function breakToGames(rounds, teams) {
         var ret = {};
         ret[key] = value;
         return ret;
-    })
+    });
 
     var teamHashes = _.map(teams, function(team) { return team.hash; });
     var ret = treeChoises(_.reverse(teamHashes), playWith, 1, false);
+
+
+    // TODO: uncomment this line to rendomize field
+    // groups = _.shuffle(groups);
+    ret = _.reverse(ret);
+
     return ret;
 }
 
@@ -162,15 +168,15 @@ function treeChoises(teams, playWith, level, isReadOnly) {
                     isCompleted = true;
                 }
 
+            } else {
+                console.log(_.find(playWith, searchElement), _.find(playWith, searchReversElement));
             }
 
+        } else {
+            console.log(isCompleted, _.find(removedElemetns, nextElement));
         }
 
     });
-
-    // TODO: uncomment this line to rendomize field
-    // groups = _.shuffle(groups);
-    groups = _.reverse(groups);
 
     return groups;
 }
