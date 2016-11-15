@@ -6,7 +6,7 @@ var TeamModelGeneric = require('./generic')(Team);
 /* extend model here */
 
 var TeamModel = {};
- _.assignIn(TeamModel, TeamModelGeneric);
+ _.extend(TeamModel, TeamModelGeneric);
 
 TeamModel.getAll = function(tournamentHash) {
     return TeamModelGeneric.getAll({tournamentHash: tournamentHash});

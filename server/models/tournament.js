@@ -7,7 +7,7 @@ var _ = require('lodash');
 var tournamentAutoincrement = 'tournament';
 
 var tournamentModel = {};
- _.assignIn(tournamentModel, tournamentDBModel);
+ _.extend(tournamentModel, tournamentDBModel);
 
  /* extend model here */
 

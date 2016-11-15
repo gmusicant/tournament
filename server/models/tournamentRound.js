@@ -11,7 +11,7 @@ var tournamentRoundAutoincrement = 'tournament.round:';
 var tournamentGameAutoincrement = 'tournament.game:';
 
 var tournamentRoundModel = {};
- _.assignIn(tournamentRoundModel, tournamentDBModel);
+ _.extend(tournamentRoundModel, tournamentDBModel);
 
  /* extend model here */
 
@@ -48,7 +48,7 @@ tournamentRoundModel.getCount = function (tournamentHash) {
 //         var roundIndex = _.findIndex(tournament.rounds, {hash: roundHash});
 //         if (roundIndex !== false) {
 //             round = tournament.rounds[roundIndex];
-//             _.assignIn(round, params);
+//             _.extend(round, params);
 //             tournament.rounds[index] = round;
 //             return tournamentDBModel.updateByHash(tournamentHash, tournament).then(function () {
 //                 return round;

@@ -2,7 +2,7 @@ var _ = require('lodash');
 var tournamentDBModel = require('./../db/models/tournament');
 
 var gameResultModel = {};
- _.assignIn(gameResultModel, tournamentDBModel);
+ _.extend(gameResultModel, tournamentDBModel);
 
 function formatGameResult(game) {
     var results = {};

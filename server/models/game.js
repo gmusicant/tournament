@@ -6,7 +6,7 @@ var tournamentDBModel = require('./../db/models/tournament');
 var tournamentGameAutoincrement = 'tournament.game:';
 
 var gameModel = {};
- _.assignIn(gameModel, tournamentDBModel);
+ _.extend(gameModel, tournamentDBModel);
 
 
 gameModel.getAll = function (tournamentHash) {
