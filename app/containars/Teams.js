@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import _ from 'lodash'
 
 import TeamList from './../components/TeamList'
-import { listTeams } from './../actions/teams'
+import { teamList } from './../actions/teams'
 
 import { browserHistory } from 'react-router'
 
@@ -19,7 +19,7 @@ const openTeamsForm = (tournamentHash, team) => {
 class Teams extends Component {
 
     componentWillMount() {
-        this.props.listTeams(this.props.currentTournamentHash)
+        this.props.teamList(this.props.currentTournamentHash)
     }
 
     render() {
@@ -35,5 +35,5 @@ export default connect(
     const teams = state.teams && state.teams.teams && state.teams.teams[optParams.params.tournamentHash];
     return  { teams, currentTournamentHash: optParams.params.tournamentHash }
   },
-  { listTeams }
+  { teamList }
 )(Teams)

@@ -1,14 +1,14 @@
 import fetch from 'isomorphic-fetch'
 import _ from 'lodash'
-import { START_FETCH_LIST_TOURNAMENT, SUCCESS_FETCH_LIST_TOURNAMENT, FAIL_FETCH_LIST_TOURNAMENT,
-    START_CREATE_TOURNAMENT, SUCCESS_CREATE_TOURNAMENT, ERROR_CREATE_TOURNAMENT,
-    START_UPDATE_TOURNAMENT, SUCCESS_UPDATE_TOURNAMENT, ERROR_UPDATE_TOURNAMENT,
-    START_DELETE_TOURNAMENT, SUCCESS_DELETE_TOURNAMENT, ERROR_DELETE_TOURNAMENT,
-    START_FETCH_TOURNAMENT, SUCCESS_FETCH_TOURNAMENT, FAIL_FETCH_TOURNAMENT } from '../constants'
+import { START_TOURNAMENT_LIST, SUCCESS_TOURNAMENT_LIST, FAIL_TOURNAMENT_LIST,
+    START_TOURNAMENT_CREATE, SUCCESS_TOURNAMENT_CREATE, ERROR_TOURNAMENT_CREATE,
+    START_TOURNAMENT_UPDATE, SUCCESS_TOURNAMENT_UPDATE, ERROR_TOURNAMENT_UPDATE,
+    START_TOURNAMENT_DELETE, SUCCESS_TOURNAMENT_DELETE, ERROR_TOURNAMENT_DELETE,
+    START_TOURNAMENT_GET, SUCCESS_TOURNAMENT_GET, FAIL_TOURNAMENT_GET } from '../constants'
 
 function startCreateTournament(tournament) {
     return {
-        type: START_CREATE_TOURNAMENT,
+        type: START_TOURNAMENT_CREATE,
         status: 'start',
         tournament
     }
@@ -16,7 +16,7 @@ function startCreateTournament(tournament) {
 
 function successCreateTournament(tournament) {
     return {
-        type: SUCCESS_CREATE_TOURNAMENT,
+        type: SUCCESS_TOURNAMENT_CREATE,
         status: 'success',
         tournament
     }
@@ -24,7 +24,7 @@ function successCreateTournament(tournament) {
 
 function errorCreateTournament(error) {
     return {
-        type: ERROR_CREATE_TOURNAMENT,
+        type: ERROR_TOURNAMENT_CREATE,
         status: 'error',
         error
     }
@@ -61,7 +61,7 @@ export const createTournament = (tournament) => {
 
 function startUpdateTournament(tournament) {
     return {
-        type: START_UPDATE_TOURNAMENT,
+        type: START_TOURNAMENT_UPDATE,
         status: 'start',
         tournament
     }
@@ -69,7 +69,7 @@ function startUpdateTournament(tournament) {
 
 function successUpdateTournament(tournament) {
     return {
-        type: SUCCESS_UPDATE_TOURNAMENT,
+        type: SUCCESS_TOURNAMENT_UPDATE,
         status: 'success',
         tournament
     }
@@ -77,7 +77,7 @@ function successUpdateTournament(tournament) {
 
 function errorUpdateTournament(error) {
     return {
-        type: ERROR_UPDATE_TOURNAMENT,
+        type: ERROR_TOURNAMENT_UPDATE,
         status: 'error',
         error
     }
@@ -111,7 +111,7 @@ export const updateTournament = (tournament) => {
 
 function startDeleteTournament(tournamentHash) {
     return {
-        type: START_DELETE_TOURNAMENT,
+        type: START_TOURNAMENT_DELETE,
         status: 'start',
         tournamentHash
     }
@@ -119,7 +119,7 @@ function startDeleteTournament(tournamentHash) {
 
 function successDeleteTournament(tournamentHash) {
     return {
-        type: SUCCESS_DELETE_TOURNAMENT,
+        type: SUCCESS_TOURNAMENT_DELETE,
         status: 'success',
         tournamentHash
     }
@@ -127,7 +127,7 @@ function successDeleteTournament(tournamentHash) {
 
 function errorDeleteTournament(error) {
     return {
-        type: ERROR_DELETE_TOURNAMENT,
+        type: ERROR_TOURNAMENT_DELETE,
         status: 'error',
         error
     }
@@ -154,14 +154,14 @@ export const deleteTournament = (tournamentHash) => {
 
 function startFetchTournaments() {
     return {
-        type: START_FETCH_LIST_TOURNAMENT,
+        type: START_TOURNAMENT_LIST,
         status: 'start'
     }
 }
 
 function successFetchTournaments(tournaments) {
     return {
-        type: SUCCESS_FETCH_LIST_TOURNAMENT,
+        type: SUCCESS_TOURNAMENT_LIST,
         status: 'success',
         tournaments: tournaments
     }
@@ -169,7 +169,7 @@ function successFetchTournaments(tournaments) {
 
 function failFetchTournaments(error) {
     return {
-        type: FAIL_FETCH_LIST_TOURNAMENT,
+        type: FAIL_TOURNAMENT_LIST,
         status: 'fail',
         error: error
     }
@@ -199,14 +199,14 @@ export const listTournaments = () => {
 
 function startFetchTournament() {
     return {
-        type: START_FETCH_TOURNAMENT,
+        type: START_TOURNAMENT_GET,
         status: 'start'
     }
 }
 
 function successFetchTournament(tournament) {
     return {
-        type: SUCCESS_FETCH_TOURNAMENT,
+        type: SUCCESS_TOURNAMENT_GET,
         status: 'success',
         tournament: tournament
     }
@@ -214,7 +214,7 @@ function successFetchTournament(tournament) {
 
 function failFetchTournament(error) {
     return {
-        type: FAIL_FETCH_TOURNAMENT,
+        type: FAIL_TOURNAMENT_GET,
         status: 'fail',
         error: error
     }

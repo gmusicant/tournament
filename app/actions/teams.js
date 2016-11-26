@@ -5,7 +5,7 @@ import { START_TEAM_LIST, SUCCESS_TEAM_LIST, FAIL_TEAM_LIST,
     START_TEAM_DELETE, SUCCESS_TEAM_DELETE, FAIL_TEAM_DELETE } from '../constants'
 import _ from 'lodash'
 
-function startFetchTeams(tournamentHash) {
+function startTeamList(tournamentHash) {
     return {
         type: START_TEAM_LIST,
         status: 'start',
@@ -13,7 +13,7 @@ function startFetchTeams(tournamentHash) {
     }
 }
 
-function successFetchTeams(teams, tournamentHash) {
+function successTeamList(teams, tournamentHash) {
     return {
         type: SUCCESS_TEAM_LIST,
         status: 'success',
@@ -22,7 +22,7 @@ function successFetchTeams(teams, tournamentHash) {
     }
 }
 
-function failFetchTeams(error) {
+function failTeamList(error) {
     return {
         type: FAIL_TEAM_LIST,
         status: 'fail',
@@ -30,14 +30,14 @@ function failFetchTeams(error) {
     }
 }
 
-export const listTeams = (tournamentHash) => {
+export const teamList = (tournamentHash) => {
     return function (dispatch, getState) {
 
         const state = getState();
 
         if (state.teams && state.teams.teams && _.isEmpty(state.teams.teams[tournamentHash])) {
 
-            dispatch(startFetchTeams())
+            dispatch(startTeamList())
 
             fetch(`/server/tournament/${tournamentHash}/team`)
                 .then(response => response.json())
@@ -48,16 +48,16 @@ export const listTeams = (tournamentHash) => {
                     return teams
                 })
                 .then(teams => {
-                    dispatch(successFetchTeams(teams, tournamentHash))
+                    dispatch(successTeamList(teams, tournamentHash))
                 })
                 .catch(error => {
-                    dispatch(failFetchTeams(error))
+                    dispatch(failTeamList(error))
                 });
         }
     }
 }
 
-function startCreateTeam(tournamentHash, team) {
+function startTeamCreate(tournamentHash, team) {
     return {
         type: START_TEAM_CREATE,
         status: 'start',
@@ -66,7 +66,7 @@ function startCreateTeam(tournamentHash, team) {
     }
 }
 
-function successCreateTeam(tournamentHash, team) {
+function successTeamCreate(tournamentHash, team) {
     return {
         type: SUCCESS_TEAM_CREATE,
         status: 'success',
@@ -75,7 +75,7 @@ function successCreateTeam(tournamentHash, team) {
     }
 }
 
-function failCreateTeam(error) {
+function failTeamCreate(error) {
     return {
         type: FAIL_TEAM_CREATE,
         status: 'fail',
@@ -83,12 +83,12 @@ function failCreateTeam(error) {
     }
 }
 
-export const createTeam = (tournamentHash, team) => {
+export const teamCreate = (tournamentHash, team) => {
     return function (dispatch, getState) {
 
         const state = getState();
 
-        dispatch(startCreateTeam(tournamentHash, team))
+        dispatch(startTeamCreate(tournamentHash, team))
 
         fetch(`/server/tournament/${tournamentHash}/team`, {
                 method: 'POST',
@@ -101,18 +101,18 @@ export const createTeam = (tournamentHash, team) => {
             .then(response => response.json())
             .then(team => team.team)
             .then(team => {
-                dispatch(successCreateTeam(tournamentHash, team));
+                dispatch(successTeamCreate(tournamentHash, team));
                 if (_.isEmpty(state.teams.teams[tournamentHash])) {
-                    dispatch(listTeams(tournamentHash));
+                    dispatch(teamList(tournamentHash));
                 }
             })
             .catch(error => {
-                dispatch(failFetchTeams(error))
+                dispatch(failTeamCreate(error))
             });
     }
 }
 
-function startUpdateTeam(tournamentHash, teamHash) {
+function startTeamUpdate(tournamentHash, teamHash) {
     return {
         type: START_TEAM_UPDATE,
         status: 'start',
@@ -121,7 +121,7 @@ function startUpdateTeam(tournamentHash, teamHash) {
     }
 }
 
-function successUpdateTeam(tournamentHash, team) {
+function successTeamUpdate(tournamentHash, team) {
     return {
         type: SUCCESS_TEAM_UPDATE,
         status: 'success',
@@ -130,7 +130,7 @@ function successUpdateTeam(tournamentHash, team) {
     }
 }
 
-function errorUpdateTeam(error) {
+function failTeamUpdate(error) {
     return {
         type: FAIL_TEAM_UPDATE,
         status: 'fail',
@@ -138,10 +138,10 @@ function errorUpdateTeam(error) {
     }
 }
 
-export const updateTeam = (tournamentHash, team) => {
+export const teamUpdate = (tournamentHash, team) => {
     return function (dispatch, getState) {
 
-        dispatch(startUpdateTeam(tournamentHash, team))
+        dispatch(startTeamUpdate(tournamentHash, team))
 
         fetch(`/server/tournament/${tournamentHash}/team/${team.hash}`, {
             method: 'PUT',
@@ -154,16 +154,16 @@ export const updateTeam = (tournamentHash, team) => {
             .then(response => response.json())
             .then(team => team.team)
             .then(team => {
-                dispatch(successUpdateTeam(tournamentHash, team))
+                dispatch(successTeamUpdate(tournamentHash, team))
             })
             .catch(error => {
-                dispatch(errorUpdateTeam(error))
+                dispatch(failTeamUpdate(error))
             });
 
     }
 }
 
-function startDeleteTeam(tournamentHash, teamHash) {
+function startTeamDelete(tournamentHash, teamHash) {
     return {
         type: START_TEAM_DELETE,
         status: 'start',
@@ -172,7 +172,7 @@ function startDeleteTeam(tournamentHash, teamHash) {
     }
 }
 
-function successDeleteTeam(tournamentHash, teamHash) {
+function successTeamDelete(tournamentHash, teamHash) {
     return {
         type: SUCCESS_TEAM_DELETE,
         status: 'success',
@@ -181,7 +181,7 @@ function successDeleteTeam(tournamentHash, teamHash) {
     }
 }
 
-function errorDeleteTeam(error) {
+function failTeamDelete(error) {
     return {
         type: FAIL_TEAM_DELETE,
         status: 'fail',
@@ -189,25 +189,25 @@ function errorDeleteTeam(error) {
     }
 }
 
-export const deleteTeam = (tournamentHash, teamHash) => {
+export const teamDelete = (tournamentHash, teamHash) => {
     return function (dispatch, getState) {
 
-        dispatch(startDeleteTeam(tournamentHash, teamHash))
+        dispatch(startTeamDelete(tournamentHash, teamHash))
 
         fetch(`/server/tournament/${tournamentHash}/team/${teamHash}`, {
             method: 'DELETE'
         })
             .then(() => {
-                dispatch(successDeleteTeam(tournamentHash, teamHash))
+                dispatch(successTeamDelete(tournamentHash, teamHash))
             })
             .catch(error => {
-                dispatch(errorDeleteTeam(error))
+                dispatch(failTeamDelete(error))
             });
 
     }
 }
 
-function startGetTeam(tournamentHash, teamHash) {
+function startTeamGet(tournamentHash, teamHash) {
     return {
         type: START_TEAM_GET,
         status: 'start',
@@ -216,7 +216,7 @@ function startGetTeam(tournamentHash, teamHash) {
     }
 }
 
-function successGetTeam(tournamentHash, team) {
+function successTeamGet(tournamentHash, team) {
     return {
         type: SUCCESS_TEAM_GET,
         status: 'success',
@@ -225,7 +225,7 @@ function successGetTeam(tournamentHash, team) {
     }
 }
 
-function failGetTeam(error) {
+function failTeamGet(error) {
     return {
         type: FAIL_TEAM_GET,
         status: 'fail',
@@ -250,21 +250,21 @@ export const teamGet = (tournamentHash, teamHash) => {
 
             if (currentTeam) {
 
-                dispatch(startGetTeam(tournamentHash, teamHash))
-                dispatch(successGetTeam(tournamentHash, currentTeam));
+                dispatch(startTeamGet(tournamentHash, teamHash))
+                dispatch(successTeamGet(tournamentHash, currentTeam));
 
             } else {
 
-                dispatch(startGetTeam(tournamentHash, teamHash))
+                dispatch(startTeamGet(tournamentHash, teamHash))
 
                 fetch(`/server/tournament/${tournamentHash}/team/${teamHash}`)
                     .then(response => response.json())
                     .then(team => team.team)
                     .then(team => {
-                        dispatch(successGetTeam(tournamentHash, team))
+                        dispatch(successTeamGet(tournamentHash, team))
                     })
                     .catch(error => {
-                        dispatch(failGetTeam(error))
+                        dispatch(failTeamGet(error))
                     });
 
             }

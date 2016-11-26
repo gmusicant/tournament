@@ -4,7 +4,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import { Field, reduxForm } from 'redux-form';
-import { createTeam, updateTeam, deleteTeam, teamGet } from '../actions/teams'
+import { teamCreate, teamUpdate, teamDelete, teamGet } from '../actions/teams'
 import TeamForm from '../components/TeamForm'
 
 const cancelButton = (event) => {
@@ -23,21 +23,21 @@ class TeamEdit extends Component {
     }
 
     render() {
-         const { handleSubmit, params, currentTeam, dispatch, createTeam, updateTeam, cancelButton, deleteTeam } = this.props
+         const { handleSubmit, params, currentTeam, dispatch, teamCreate, teamUpdate, cancelButton, teamDelete } = this.props
 
         const saveTeam = (team) => {
 
             if (_.isEmpty(currentTeam))
-                dispatch(createTeam(params.tournamentHash, team));
+                dispatch(teamCreate(params.tournamentHash, team));
             else
-                dispatch(updateTeam(params.tournamentHash, team));
+                dispatch(teamUpdate(params.tournamentHash, team));
 
             browserHistory.push(`/client/${params.tournamentHash}/teams`);
         };
 
         const deleteTeamWrapped = (tournamentHash, teamHash, event) => {
             event.preventDefault();
-            dispatch(deleteTeam(tournamentHash, teamHash));
+            dispatch(teamDelete(tournamentHash, teamHash));
             browserHistory.push(`/client/${tournamentHash}/teams`);
         }
 
@@ -61,6 +61,6 @@ export default connect(
     }
   },
   () => {
-    return { createTeam, updateTeam, cancelButton, deleteTeam, teamGet }
+    return { teamCreate, teamUpdate, cancelButton, teamDelete, teamGet }
   }
 )(TeamEditConst)
