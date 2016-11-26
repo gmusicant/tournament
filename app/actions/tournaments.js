@@ -49,7 +49,7 @@ export const tournamentCreate = (tournament) => {
             .then(tournament => {
                 dispatch(successTournamentCreate(tournament))
                 if (_.isEmpty(state.tournaments.tournaments)) {
-                    dispatch(listTournaments());
+                    dispatch(tournamentList());
                 }
             })
             .catch(error => {
