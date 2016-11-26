@@ -224,7 +224,7 @@ export const tournamentGet = (tournamentHash, successCallback) => {
 
         const state = getState();
 
-        if (state.tournaments && _.isEmpty(state.tournaments.currentTournament)) {
+        if (state.tournaments && (_.isEmpty(state.tournaments.currentTournament) || state.tournaments.currentTournament.hash !== tournamentHash)) {
 
             let currentTournament;
 
