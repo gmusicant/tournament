@@ -1,13 +1,13 @@
-import { START_FETCH_LIST_TEAM, SUCCESS_FETCH_LIST_TEAM, FAIL_FETCH_LIST_TEAM,
-    START_CREATE_TEAM, SUCCESS_CREATE_TEAM, FAIL_CREATE_TEAM,
-    START_GET_TEAM, SUCCESS_GET_TEAM, FAIL_GET_TEAM,
-    START_UPDATE_TEAM, SUCCESS_UPDATE_TEAM, FAIL_UPDATE_TEAM,
-    START_DELETE_TEAM, SUCCESS_DELETE_TEAM, FAIL_DELETE_TEAM } from '../constants'
+import { START_TEAM_LIST, SUCCESS_TEAM_LIST, FAIL_TEAM_LIST,
+    START_TEAM_CREATE, SUCCESS_TEAM_CREATE, FAIL_TEAM_CREATE,
+    START_TEAM_GET, SUCCESS_TEAM_GET, FAIL_TEAM_GET,
+    START_TEAM_UPDATE, SUCCESS_TEAM_UPDATE, FAIL_TEAM_UPDATE,
+    START_TEAM_DELETE, SUCCESS_TEAM_DELETE, FAIL_TEAM_DELETE } from '../constants'
 import _ from 'lodash'
 
 function startFetchTeams(tournamentHash) {
     return {
-        type: START_FETCH_LIST_TEAM,
+        type: START_TEAM_LIST,
         status: 'start',
         tournamentHash
     }
@@ -15,7 +15,7 @@ function startFetchTeams(tournamentHash) {
 
 function successFetchTeams(teams, tournamentHash) {
     return {
-        type: SUCCESS_FETCH_LIST_TEAM,
+        type: SUCCESS_TEAM_LIST,
         status: 'success',
         teams,
         tournamentHash
@@ -24,7 +24,7 @@ function successFetchTeams(teams, tournamentHash) {
 
 function failFetchTeams(error) {
     return {
-        type: FAIL_FETCH_LIST_TEAM,
+        type: FAIL_TEAM_LIST,
         status: 'fail',
         error: error
     }
@@ -59,7 +59,7 @@ export const listTeams = (tournamentHash) => {
 
 function startCreateTeam(tournamentHash, team) {
     return {
-        type: START_CREATE_TEAM,
+        type: START_TEAM_CREATE,
         status: 'start',
         team,
         tournamentHash
@@ -68,7 +68,7 @@ function startCreateTeam(tournamentHash, team) {
 
 function successCreateTeam(tournamentHash, team) {
     return {
-        type: SUCCESS_CREATE_TEAM,
+        type: SUCCESS_TEAM_CREATE,
         status: 'success',
         team,
         tournamentHash
@@ -77,7 +77,7 @@ function successCreateTeam(tournamentHash, team) {
 
 function failCreateTeam(error) {
     return {
-        type: FAIL_CREATE_TEAM,
+        type: FAIL_TEAM_CREATE,
         status: 'fail',
         error: error
     }
@@ -114,7 +114,7 @@ export const createTeam = (tournamentHash, team) => {
 
 function startUpdateTeam(tournamentHash, teamHash) {
     return {
-        type: START_UPDATE_TEAM,
+        type: START_TEAM_UPDATE,
         status: 'start',
         teamHash,
         tournamentHash
@@ -123,7 +123,7 @@ function startUpdateTeam(tournamentHash, teamHash) {
 
 function successUpdateTeam(tournamentHash, team) {
     return {
-        type: SUCCESS_UPDATE_TEAM,
+        type: SUCCESS_TEAM_UPDATE,
         status: 'success',
         team,
         tournamentHash
@@ -132,7 +132,7 @@ function successUpdateTeam(tournamentHash, team) {
 
 function errorUpdateTeam(error) {
     return {
-        type: FAIL_UPDATE_TEAM,
+        type: FAIL_TEAM_UPDATE,
         status: 'fail',
         error: error
     }
@@ -165,7 +165,7 @@ export const updateTeam = (tournamentHash, team) => {
 
 function startDeleteTeam(tournamentHash, teamHash) {
     return {
-        type: START_DELETE_TEAM,
+        type: START_TEAM_DELETE,
         status: 'start',
         teamHash,
         tournamentHash
@@ -174,7 +174,7 @@ function startDeleteTeam(tournamentHash, teamHash) {
 
 function successDeleteTeam(tournamentHash, teamHash) {
     return {
-        type: SUCCESS_DELETE_TEAM,
+        type: SUCCESS_TEAM_DELETE,
         status: 'success',
         teamHash,
         tournamentHash
@@ -183,7 +183,7 @@ function successDeleteTeam(tournamentHash, teamHash) {
 
 function errorDeleteTeam(error) {
     return {
-        type: FAIL_DELETE_TEAM,
+        type: FAIL_TEAM_DELETE,
         status: 'fail',
         error: error
     }
@@ -209,7 +209,7 @@ export const deleteTeam = (tournamentHash, teamHash) => {
 
 function startGetTeam(tournamentHash, teamHash) {
     return {
-        type: START_GET_TEAM,
+        type: START_TEAM_GET,
         status: 'start',
         teamHash,
         tournamentHash
@@ -218,7 +218,7 @@ function startGetTeam(tournamentHash, teamHash) {
 
 function successGetTeam(tournamentHash, team) {
     return {
-        type: SUCCESS_GET_TEAM,
+        type: SUCCESS_TEAM_GET,
         status: 'success',
         team,
         tournamentHash
@@ -227,7 +227,7 @@ function successGetTeam(tournamentHash, team) {
 
 function failGetTeam(error) {
     return {
-        type: FAIL_GET_TEAM,
+        type: FAIL_TEAM_GET,
         status: 'fail',
         error: error
     }

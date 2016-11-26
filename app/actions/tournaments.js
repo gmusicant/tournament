@@ -1,9 +1,6 @@
 import fetch from 'isomorphic-fetch'
 import _ from 'lodash'
-import { CREATE_TOURNAMENT,
-    READ_TOURNAMENT,
-    UPDATE_TOURNAMENT,
-    START_FETCH_LIST_TOURNAMENT, SUCCESS_FETCH_LIST_TOURNAMENT, FAIL_FETCH_LIST_TOURNAMENT,
+import { START_FETCH_LIST_TOURNAMENT, SUCCESS_FETCH_LIST_TOURNAMENT, FAIL_FETCH_LIST_TOURNAMENT,
     START_CREATE_TOURNAMENT, SUCCESS_CREATE_TOURNAMENT, ERROR_CREATE_TOURNAMENT,
     START_UPDATE_TOURNAMENT, SUCCESS_UPDATE_TOURNAMENT, ERROR_UPDATE_TOURNAMENT,
     START_DELETE_TOURNAMENT, SUCCESS_DELETE_TOURNAMENT, ERROR_DELETE_TOURNAMENT,
@@ -189,6 +186,7 @@ export const listTournaments = () => {
 
             fetch('/server/tournament')
                 .then(response => response.json())
+                .then(tournaments => tournaments.tournaments)
                 .then(tournaments => {
                     dispatch(successFetchTournaments(tournaments))
                 })
