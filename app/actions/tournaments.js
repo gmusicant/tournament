@@ -1,9 +1,9 @@
 import fetch from 'isomorphic-fetch'
 import _ from 'lodash'
 import { START_TOURNAMENT_LIST, SUCCESS_TOURNAMENT_LIST, FAIL_TOURNAMENT_LIST,
-    START_TOURNAMENT_CREATE, SUCCESS_TOURNAMENT_CREATE, ERROR_TOURNAMENT_CREATE,
-    START_TOURNAMENT_UPDATE, SUCCESS_TOURNAMENT_UPDATE, ERROR_TOURNAMENT_UPDATE,
-    START_TOURNAMENT_DELETE, SUCCESS_TOURNAMENT_DELETE, ERROR_TOURNAMENT_DELETE,
+    START_TOURNAMENT_CREATE, SUCCESS_TOURNAMENT_CREATE, FAIL_TOURNAMENT_CREATE,
+    START_TOURNAMENT_UPDATE, SUCCESS_TOURNAMENT_UPDATE, FAIL_TOURNAMENT_UPDATE,
+    START_TOURNAMENT_DELETE, SUCCESS_TOURNAMENT_DELETE, FAIL_TOURNAMENT_DELETE,
     START_TOURNAMENT_GET, SUCCESS_TOURNAMENT_GET, FAIL_TOURNAMENT_GET } from '../constants'
 
 function startTournamentCreate(tournament) {
@@ -22,10 +22,10 @@ function successTournamentCreate(tournament) {
     }
 }
 
-function errorTournamentCreate(error) {
+function failTournamentCreate(error) {
     return {
-        type: ERROR_TOURNAMENT_CREATE,
-        status: 'error',
+        type: FAIL_TOURNAMENT_CREATE,
+        status: 'fail',
         error
     }
 
@@ -53,7 +53,7 @@ export const tournamentCreate = (tournament) => {
                 }
             })
             .catch(error => {
-                dispatch(errorTournamentCreate(error))
+                dispatch(failTournamentCreate(error))
             });
 
     }
@@ -75,10 +75,10 @@ function successTournamentUpdate(tournament) {
     }
 }
 
-function errorTournamentUpdate(error) {
+function failTournamentUpdate(error) {
     return {
-        type: ERROR_TOURNAMENT_UPDATE,
-        status: 'error',
+        type: FAIL_TOURNAMENT_UPDATE,
+        status: 'fail',
         error
     }
 
@@ -103,7 +103,7 @@ export const tournamentUpdate = (tournament) => {
                 dispatch(successTournamentUpdate(tournament))
             })
             .catch(error => {
-                dispatch(errorTournamentUpdate(error))
+                dispatch(failTournamentUpdate(error))
             });
 
     }
@@ -125,10 +125,10 @@ function successTournamentDelete(tournamentHash) {
     }
 }
 
-function errorTournamentDelete(error) {
+function fileTournamentDelete(error) {
     return {
-        type: ERROR_TOURNAMENT_DELETE,
-        status: 'error',
+        type: FAIL_TOURNAMENT_DELETE,
+        status: 'file',
         error
     }
 
@@ -146,7 +146,7 @@ export const tournamentDelete = (tournamentHash) => {
                 dispatch(successTournamentDelete(tournamentHash))
             })
             .catch(error => {
-                dispatch(errorTournamentDelete(error))
+                dispatch(fileTournamentDelete(error))
             });
 
     }
