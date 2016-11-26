@@ -21,9 +21,11 @@ export default function update(state = initialState, action) {
     } else if (action.type === FAIL_TOURNAMENT_LIST) {
         return Object.assign({}, state, { tournamentListStatus: action.status, error: action.error });
     } else if (action.type === SUCCESS_TOURNAMENT_CREATE) {
+        let ret = Object.assign({}, state, { currentTournament: {} });
         if (!_.isEmpty(state.tournaments)) {
-            return Object.assign({}, state, { tournaments: [...state.tournaments, action.tournament] });
+            ret = Object.assign({}, ret, { tournaments: [...state.tournaments, action.tournament] });
         }
+        return ret;
     } else if (action.type === SUCCESS_TOURNAMENT_UPDATE) {
         const tournaments = _.map(state.tournaments, (tournament) => {
             if (tournament.hash == action.tournament.hash)
@@ -31,10 +33,10 @@ export default function update(state = initialState, action) {
             else
                 return tournament
         });
-        return Object.assign({}, state, { tournaments });
+        return Object.assign({}, state, { tournaments, currentTournament: {} });
     } else if (action.type === SUCCESS_TOURNAMENT_DELETE) {
         if (!_.isEmpty(state.tournaments)) {
-            return Object.assign({}, state, { tournaments: _.filter(state.tournaments, (tournament) => { return tournament.hash !== action.tournamentHash }) });
+            return Object.assign({}, state, { tournaments: _.filter(state.tournaments, (tournament) => { return tournament.hash !== action.tournamentHash }), currentTournament: {} });
         }
     } else if (action.type === SUCCESS_TOURNAMENT_GET) {
         return Object.assign({}, state, { currentTournament: action.tournament });

@@ -23,11 +23,13 @@ export default function update(state = initialState, action) {
     } else if (action.type === FAIL_TEAM_LIST) {
         return Object.assign({}, state, { teamListStatus: action.status, error: action.error });
     } else if (action.type === SUCCESS_TEAM_CREATE) {
+        let ret = Object.assign({}, state, { currentTeam: {} });
         if (!_.isEmpty(state.teams[action.tournamentHash])) {
             const teams = state.teams;
             teams[action.tournamentHash] = [...teams[action.tournamentHash], action.team];
-            return Object.assign({}, state, { teams });
+            ret = Object.assign({}, ret, { teams });
         }
+        return ret;
     } else if (action.type === FAIL_TEAM_CREATE) {
         return Object.assign({}, state, { teamListStatus: action.status, error: action.error });
     } else if (action.type === SUCCESS_TEAM_GET) {
@@ -40,12 +42,12 @@ export default function update(state = initialState, action) {
             else
                 return team
         });
-        return Object.assign({}, state, { teams });
+        return Object.assign({}, state, { teams, currentTeam: {} });
     } else if (action.type === SUCCESS_TEAM_DELETE) {
         if (!_.isEmpty(state.teams[action.tournamentHash])) {
             const teams = state.teams;
             teams[action.tournamentHash] = _.filter(teams[action.tournamentHash], (team) => { return team.hash !== action.teamHash })
-            return Object.assign({}, state, { teams });
+            return Object.assign({}, state, { teams, currentTeam: {}  });
         }
     }
     return state
