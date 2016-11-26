@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 
-function TournamentListRow( { tournament, selectTournamentForEdit, position} ) {
+function TournamentListRow( { tournament, openTournamentForm, position, tournamentDelete} ) {
   return <tr>
     <td>
     {position}
@@ -16,7 +16,7 @@ function TournamentListRow( { tournament, selectTournamentForEdit, position} ) {
     }}>
         Select this
     </button>&nbsp;
-    <button className="btn btn-warning" onClick={selectTournamentForEdit.bind(this, tournament)}>
+    <button className="btn btn-warning" onClick={openTournamentForm.bind(this, tournament)}>
      Edit
     </button>
     </td>

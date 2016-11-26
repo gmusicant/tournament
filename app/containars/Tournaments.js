@@ -5,13 +5,12 @@ import _ from 'lodash'
 import TournamentList from '../components/TournamentList'
 import { browserHistory } from 'react-router'
 
-const openTournamentForm = () => {
-    // todo clean edit form
-    return browserHistory.push(`/client/tournaments/add`);
-}
-
-const selectTournamentForEdit = (tournament) => {
-    return browserHistory.push(`/client/${tournament.hash}/edit`);
+const openTournamentForm = (tournament) => {
+    // todo clean edit form. we can do this on cancel
+    if (tournament && tournament.hash)
+        return browserHistory.push(`/client/${tournament.hash}/edit`);
+    else
+        return browserHistory.push(`/client/tournaments/add`);
 }
 
 class Tournaments extends Component {
@@ -23,7 +22,7 @@ class Tournaments extends Component {
     render() {
         const {tournaments, listTournaments, createTournament } = this.props
         return (
-            <TournamentList tournaments={tournaments} listTournaments={listTournaments} openTournamentForm={openTournamentForm} createTournament={createTournament} selectTournamentForEdit={selectTournamentForEdit} />
+            <TournamentList tournaments={tournaments} listTournaments={listTournaments} openTournamentForm={openTournamentForm} createTournament={createTournament} />
         )
     }
 }

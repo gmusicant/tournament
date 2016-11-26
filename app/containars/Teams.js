@@ -13,8 +13,9 @@ class Teams extends Component {
 
     render() {
         const { teams } = this.props;
+        const selectTeamForEdit = () => {};
         return (
-            <TeamList teams={teams} />
+            <TeamList teams={teams} selectTeamForEdit={selectTeamForEdit} />
         )
     }
 }

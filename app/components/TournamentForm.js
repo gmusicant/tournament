@@ -5,6 +5,29 @@ import _ from 'lodash';
 
 export default class TournamentForm extends Component {
 
+    showdDeleteButton(deleteButton, tournament) {
+        if (tournament && tournament.hash) {
+
+            const areYouShure = (event) => {
+                if (confirm('Are you sure you want to delete this tournament ?')) {
+                    deleteButton(tournament.hash, event);
+                }
+            }
+
+            return (<div className="form-group">
+                <h4>
+                    Danger section. We can't restore tournament if you delete it.
+                </h4>
+                <a className="btn btn-danger btn-xs" type="submit"
+                    onClick={areYouShure}>
+                    Delete
+                </a>
+            </div>)
+        } else {
+            return '';
+        }
+    }
+
     render() {
 
         const { handleSubmit, saveTournament, cancelButton, deleteButton, tournament } = this.props;
@@ -29,15 +52,7 @@ export default class TournamentForm extends Component {
                             </Field>
                         </div>
                     </div>
-                    <div className="form-group">
-                        <h4>
-                            Danger section. We can't restore tournament if you delete it.
-                        </h4>
-                        <a className="btn btn-danger btn-xs" type="submit"
-                            onClick={deleteButton.bind(this, tournament.hash)}>
-                            Delete
-                        </a>
-                    </div>
+                    {this.showdDeleteButton(deleteButton, tournament)}
                     <div className="form-group">
                         <button className="btn btn-default" type="submit"
                             onClick={cancelButton}>

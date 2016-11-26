@@ -7,14 +7,14 @@ export default class TournamentList extends Component {
     render() {
 
         const {
-            tournaments, listTournaments, createTournament, openTournamentForm, selectTournamentForEdit
+            tournaments, listTournaments, createTournament, openTournamentForm
         } = this.props
 
 
         return (
-            <div>
+            <div className="container">
                 <div>
-                    <button onClick={ openTournamentForm }>Add tournament</button>
+                    <button className="btn btn-warning" onClick={ openTournamentForm }>Add tournament</button>
                 </div>
                 <div>
                     <table className="table table-striped">
@@ -27,7 +27,7 @@ export default class TournamentList extends Component {
                         </thead>
                         <tbody>
                             {_.map(tournaments, (tournament, index) => {
-                                return <TournamentListRow tournament={tournament} position={index+1} key={index} selectTournamentForEdit={selectTournamentForEdit} />
+                                return <TournamentListRow tournament={tournament} position={index+1} key={index} openTournamentForm={openTournamentForm}  />
                             })}
                         </tbody>
                     </table>
