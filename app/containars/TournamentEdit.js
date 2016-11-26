@@ -4,7 +4,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import { Field, reduxForm } from 'redux-form';
-import { createTournament, updateTournament, deleteTournament } from '../actions/tournaments'
+import { createTournament, updateTournament, deleteTournament, tournamentGet } from '../actions/tournaments'
 import TournamentForm from '../components/TournamentForm'
 
 const cancelButton = (event) => {
@@ -13,27 +13,24 @@ const cancelButton = (event) => {
     return browserHistory.goBack();
 }
 
-const selectTournament = (hash, tournaments) => {
-    const tournament = _.find(tournaments.tournaments, { hash });
-    if (!_.isEmpty(tournament))
-        return tournament;
-    else
-        return {};
-}
-
 class TournamentEdit extends Component {
 
-    render() {
-        const { handleSubmit, createTournament, updateTournament, tournaments, params, deleteTournament } = this.props
+    componentWillMount() {
+        const { dispatch, params, tournamentGet, autofill } = this.props;
+        if (params.tournamentHash) {
+            dispatch(tournamentGet(params.tournamentHash));
+        }
+    }
 
-        const tournamentInit = selectTournament(params.tournamentHash, tournaments);
+    render() {
+        const { handleSubmit, createTournament, updateTournament, params, deleteTournament, currentTournament, dispatch } = this.props
 
         const saveTournament = (tournament) => {
 
-            if (_.isEmpty(tournamentInit))
-                createTournament(tournament)
+            if (_.isEmpty(currentTournament))
+                dispatch(createTournament(tournament));
             else
-                updateTournament(tournament)
+                dispatch(updateTournament(tournament));
 
             browserHistory.push(`/client`);
         };
@@ -45,21 +42,24 @@ class TournamentEdit extends Component {
         }
 
         return (
-            <TournamentForm init handleSubmit={handleSubmit} cancelButton={cancelButton} deleteButton={deleteTournamentWrapped} saveTournament={saveTournament} tournament={tournamentInit} deleteTournament={deleteTournamentWrapped} />
+            <TournamentForm init handleSubmit={handleSubmit} cancelButton={cancelButton} deleteButton={deleteTournamentWrapped} saveTournament={saveTournament} tournament={currentTournament} deleteTournament={deleteTournamentWrapped} />
           )
     }
 }
 
 const TournamentEditConst = reduxForm({
-  form: 'TournamentEdit'  // a unique identifier for this form
+  form: 'TournamentEdit',  // a unique identifier for this form,
+  enableReinitialize: true
 })(TournamentEdit)
 
 export default connect(
   (state, optParams) => {
     return {
-        tournaments: state.tournaments,
-        initialValues: selectTournament(optParams.params.tournamentHash, state.tournaments)
+        currentTournament: state.tournaments.currentTournament,
+        initialValues: state.tournaments.currentTournament
     }
   },
-  { createTournament, updateTournament, cancelButton, deleteTournament }
+  () => {
+    return { createTournament, updateTournament, cancelButton, deleteTournament, tournamentGet }
+  }
 )(TournamentEditConst)
