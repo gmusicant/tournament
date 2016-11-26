@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 
-function TeamListRow( { position, team, selectTeamForEdit } ) {
+function TeamListRow( { position, team, openTeamsForm } ) {
   return <tr>
     <td>
     {position}
@@ -11,7 +11,7 @@ function TeamListRow( { position, team, selectTeamForEdit } ) {
         {team.title}
     </td>
     <td>
-    <button className="btn btn-warning"  onClick={selectTeamForEdit.bind(this, team)}>Edit</button>&nbsp;
+    <button className="btn btn-warning"  onClick={openTeamsForm.bind(this, team)}>Edit</button>&nbsp;
     </td>
     </tr>
 }

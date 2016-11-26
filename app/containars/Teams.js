@@ -5,6 +5,17 @@ import _ from 'lodash'
 import TeamList from './../components/TeamList'
 import { listTeams } from './../actions/teams'
 
+import { browserHistory } from 'react-router'
+
+
+const openTeamsForm = (tournamentHash, team) => {
+    // todo clean edit form. we can do this on cancel
+    if (team && team.hash && tournamentHash)
+        return browserHistory.push(`/client/${tournamentHash}/teams/${team.hash}/edit`);
+    else
+        return browserHistory.push(`/client/${tournamentHash}/teams/add`);
+}
+
 class Teams extends Component {
 
     componentWillMount() {
@@ -12,10 +23,9 @@ class Teams extends Component {
     }
 
     render() {
-        const { teams } = this.props;
-        const selectTeamForEdit = () => {};
+        const { teams, currentTournamentHash } = this.props;
         return (
-            <TeamList teams={teams} selectTeamForEdit={selectTeamForEdit} />
+            <TeamList teams={teams} openTeamsForm={openTeamsForm.bind(this, currentTournamentHash)} tournamentHash={currentTournamentHash} />
         )
     }
 }

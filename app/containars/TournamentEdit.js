@@ -16,7 +16,7 @@ const cancelButton = (event) => {
 class TournamentEdit extends Component {
 
     componentWillMount() {
-        const { dispatch, params, tournamentGet, autofill } = this.props;
+        const { dispatch, params, tournamentGet } = this.props;
         if (params.tournamentHash) {
             dispatch(tournamentGet(params.tournamentHash));
         }
@@ -37,7 +37,7 @@ class TournamentEdit extends Component {
 
         const deleteTournamentWrapped = (hash, event) => {
             event.preventDefault();
-            deleteTournament(hash);
+            dispatch(deleteTournament(hash));
             browserHistory.push(`/client`);
         }
 

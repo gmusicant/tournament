@@ -51,6 +51,9 @@ export const createTournament = (tournament) => {
             .then(tournament => tournament.tournament)
             .then(tournament => {
                 dispatch(successCreateTournament(tournament))
+                if (_.isEmpty(state.tournaments.tournaments)) {
+                    dispatch(listTournaments());
+                }
             })
             .catch(error => {
                 dispatch(errorCreateTournament(error))

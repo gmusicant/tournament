@@ -23,15 +23,15 @@ export default function update(state = initialState, action) {
   } else if (action.type === FAIL_FETCH_LIST_TOURNAMENT) {
     return Object.assign({}, state, { tournamentListStatus: action.status, error: action.error });
   } else if (action.type === SUCCESS_CREATE_TOURNAMENT) {
-    if (!_.isEmpty(tournaments.tournaments))
+    if (!_.isEmpty(state.tournaments))
         return Object.assign({}, state, { tournaments: [...state.tournaments, action.tournament] });
   } else if (action.type === SUCCESS_UPDATE_TOURNAMENT) {
     const tournaments = _.map(state.tournaments, (tournament) => {
-            if (tournament.hash == action.tournament.hash)
-                return action.tournament
-            else
-                return tournament
-        })
+        if (tournament.hash == action.tournament.hash)
+            return action.tournament
+        else
+            return tournament
+    });
     return Object.assign({}, state, { tournaments });
   } else if (action.type === SUCCESS_DELETE_TOURNAMENT) {
     if (!_.isEmpty(state.tournaments))

@@ -18,6 +18,7 @@ import App from './components/App'
 import Tournaments from './containars/Tournaments'
 import TournamentEdit from './containars/TournamentEdit'
 import Teams from './containars/Teams'
+import TeamEdit from './containars/TeamEdit'
 import Games from './components/Games'
 import Results from './components/Results'
 
@@ -48,10 +49,11 @@ ReactDOM.render(
         <Route path="/client" component={App}>
           <IndexRoute component={Tournaments}/>
           <Route path=":tournamentHash/tournaments" component={Tournaments}/>
-          <Route path=":tournamentHash/tournaments/update" component={TournamentEdit}/>
           <Route path="tournaments/add" component={TournamentEdit}/>
           <Route path=":tournamentHash/edit" component={TournamentEdit}/>
           <Route path=":tournamentHash/teams" component={Teams}/>
+          <Route path=":tournamentHash/teams/add" component={TeamEdit}/>
+          <Route path=":tournamentHash/teams/:teamHash/edit" component={TeamEdit}/>
           <Route path=":tournamentHash/games" component={Games}/>
           <Route path=":tournamentHash/results" component={Results}/>
         </Route>

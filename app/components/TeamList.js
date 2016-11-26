@@ -7,13 +7,13 @@ export default class TeamList extends Component {
 
     render() {
 
-        const { teams, openTeamForm, selectTeamForEdit } = this.props;
+        const { teams, openTeamsForm, selectTeamForEdit } = this.props;
 
         return (
             <div className="container">
                 <div>
                     <div>
-                        <button className="btn btn-warning" onClick={ openTeamForm }>Add team</button>
+                        <button className="btn btn-warning" onClick={ openTeamsForm }>Add team</button>
                     </div>
                 </div>
                 <div>
@@ -27,7 +27,7 @@ export default class TeamList extends Component {
                         </thead>
                         <tbody>
                             {_.map(teams, (team, index) => {
-                                return <TeamListRow team={team} key={index} position={index+1} selectTeamForEdit={selectTeamForEdit} />
+                                return <TeamListRow team={team} key={index} position={index+1} openTeamsForm={openTeamsForm} />
                             })}
                         </tbody>
                     </table>
