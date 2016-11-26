@@ -54,9 +54,10 @@ const TournamentEditConst = reduxForm({
 
 export default connect(
   (state, optParams) => {
+    const currentTounament = (_.isEmpty(optParams.params.tournamentHash)) ? {} : state.tournaments.currentTournament;
     return {
-        currentTournament: state.tournaments.currentTournament,
-        initialValues: state.tournaments.currentTournament
+        currentTournament: currentTounament,
+        initialValues: currentTounament
     }
   },
   () => {
