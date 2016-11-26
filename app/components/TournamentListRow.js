@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 
-function TournamentListRow( { tournament, openTournamentForm, position, tournamentDelete} ) {
+function TournamentListRow( { tournament, openTournamentForm, position} ) {
   return <tr>
     <td>
     {position}

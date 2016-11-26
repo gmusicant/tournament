@@ -7,7 +7,7 @@ export default class TournamentList extends Component {
     render() {
 
         const {
-            tournaments, listTournaments, createTournament, openTournamentForm
+            tournaments, openTournamentForm
         } = this.props
 
 
@@ -31,8 +31,6 @@ export default class TournamentList extends Component {
                             })}
                         </tbody>
                     </table>
-                    <button onClick={() => listTournaments()}>listTournaments</button>
-                    <button onClick={() => createTournament("test")}>Decrease</button>
                 </div>
             </div>)
       }

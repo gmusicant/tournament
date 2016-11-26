@@ -6,7 +6,7 @@ import { START_TOURNAMENT_LIST, SUCCESS_TOURNAMENT_LIST, FAIL_TOURNAMENT_LIST,
     START_TOURNAMENT_DELETE, SUCCESS_TOURNAMENT_DELETE, ERROR_TOURNAMENT_DELETE,
     START_TOURNAMENT_GET, SUCCESS_TOURNAMENT_GET, FAIL_TOURNAMENT_GET } from '../constants'
 
-function startCreateTournament(tournament) {
+function startTournamentCreate(tournament) {
     return {
         type: START_TOURNAMENT_CREATE,
         status: 'start',
@@ -14,7 +14,7 @@ function startCreateTournament(tournament) {
     }
 }
 
-function successCreateTournament(tournament) {
+function successTournamentCreate(tournament) {
     return {
         type: SUCCESS_TOURNAMENT_CREATE,
         status: 'success',
@@ -22,7 +22,7 @@ function successCreateTournament(tournament) {
     }
 }
 
-function errorCreateTournament(error) {
+function errorTournamentCreate(error) {
     return {
         type: ERROR_TOURNAMENT_CREATE,
         status: 'error',
@@ -31,10 +31,10 @@ function errorCreateTournament(error) {
 
 }
 
-export const createTournament = (tournament) => {
+export const tournamentCreate = (tournament) => {
     return function (dispatch, getState) {
 
-        dispatch(startCreateTournament(tournament))
+        dispatch(startTournamentCreate(tournament))
 
         fetch('/server/tournament', {
             method: 'POST',
@@ -47,19 +47,19 @@ export const createTournament = (tournament) => {
             .then(response => response.json())
             .then(tournament => tournament.tournament)
             .then(tournament => {
-                dispatch(successCreateTournament(tournament))
+                dispatch(successTournamentCreate(tournament))
                 if (_.isEmpty(state.tournaments.tournaments)) {
                     dispatch(listTournaments());
                 }
             })
             .catch(error => {
-                dispatch(errorCreateTournament(error))
+                dispatch(errorTournamentCreate(error))
             });
 
     }
 }
 
-function startUpdateTournament(tournament) {
+function startTournamentUpdate(tournament) {
     return {
         type: START_TOURNAMENT_UPDATE,
         status: 'start',
@@ -67,7 +67,7 @@ function startUpdateTournament(tournament) {
     }
 }
 
-function successUpdateTournament(tournament) {
+function successTournamentUpdate(tournament) {
     return {
         type: SUCCESS_TOURNAMENT_UPDATE,
         status: 'success',
@@ -75,7 +75,7 @@ function successUpdateTournament(tournament) {
     }
 }
 
-function errorUpdateTournament(error) {
+function errorTournamentUpdate(error) {
     return {
         type: ERROR_TOURNAMENT_UPDATE,
         status: 'error',
@@ -84,10 +84,10 @@ function errorUpdateTournament(error) {
 
 }
 
-export const updateTournament = (tournament) => {
+export const tournamentUpdate = (tournament) => {
     return function (dispatch, getState) {
 
-        dispatch(startUpdateTournament(tournament))
+        dispatch(startTournamentUpdate(tournament))
 
         fetch(`/server/tournament/${tournament.hash}`, {
             method: 'PUT',
@@ -100,16 +100,16 @@ export const updateTournament = (tournament) => {
             .then(response => response.json())
             .then(tournament => tournament.tournament)
             .then(tournament => {
-                dispatch(successUpdateTournament(tournament))
+                dispatch(successTournamentUpdate(tournament))
             })
             .catch(error => {
-                dispatch(errorUpdateTournament(error))
+                dispatch(errorTournamentUpdate(error))
             });
 
     }
 }
 
-function startDeleteTournament(tournamentHash) {
+function startTournamentDelete(tournamentHash) {
     return {
         type: START_TOURNAMENT_DELETE,
         status: 'start',
@@ -117,7 +117,7 @@ function startDeleteTournament(tournamentHash) {
     }
 }
 
-function successDeleteTournament(tournamentHash) {
+function successTournamentDelete(tournamentHash) {
     return {
         type: SUCCESS_TOURNAMENT_DELETE,
         status: 'success',
@@ -125,7 +125,7 @@ function successDeleteTournament(tournamentHash) {
     }
 }
 
-function errorDeleteTournament(error) {
+function errorTournamentDelete(error) {
     return {
         type: ERROR_TOURNAMENT_DELETE,
         status: 'error',
@@ -134,32 +134,32 @@ function errorDeleteTournament(error) {
 
 }
 
-export const deleteTournament = (tournamentHash) => {
+export const tournamentDelete = (tournamentHash) => {
     return function (dispatch, getState) {
 
-        dispatch(startDeleteTournament(tournamentHash))
+        dispatch(startTournamentDelete(tournamentHash))
 
         fetch(`/server/tournament/${tournamentHash}`, {
             method: 'DELETE'
         })
             .then(() => {
-                dispatch(successDeleteTournament(tournamentHash))
+                dispatch(successTournamentDelete(tournamentHash))
             })
             .catch(error => {
-                dispatch(errorDeleteTournament(error))
+                dispatch(errorTournamentDelete(error))
             });
 
     }
 }
 
-function startFetchTournaments() {
+function startTournamentList() {
     return {
         type: START_TOURNAMENT_LIST,
         status: 'start'
     }
 }
 
-function successFetchTournaments(tournaments) {
+function successTournamentList(tournaments) {
     return {
         type: SUCCESS_TOURNAMENT_LIST,
         status: 'success',
@@ -167,7 +167,7 @@ function successFetchTournaments(tournaments) {
     }
 }
 
-function failFetchTournaments(error) {
+function failTournamentList(error) {
     return {
         type: FAIL_TOURNAMENT_LIST,
         status: 'fail',
@@ -175,36 +175,36 @@ function failFetchTournaments(error) {
     }
 }
 
-export const listTournaments = () => {
+export const tournamentList = () => {
     return function (dispatch, getState) {
 
         const state = getState();
 
         if (state.tournaments && _.isEmpty(state.tournaments.tournaments)) {
 
-            dispatch(startFetchTournaments())
+            dispatch(startTournamentList())
 
             fetch('/server/tournament')
                 .then(response => response.json())
                 .then(tournaments => tournaments.tournaments)
                 .then(tournaments => {
-                    dispatch(successFetchTournaments(tournaments))
+                    dispatch(successTournamentList(tournaments))
                 })
                 .catch(error => {
-                    dispatch(failFetchTournaments(error))
+                    dispatch(failTournamentList(error))
                 });
         }
     }
 }
 
-function startFetchTournament() {
+function startTournamentGet() {
     return {
         type: START_TOURNAMENT_GET,
         status: 'start'
     }
 }
 
-function successFetchTournament(tournament) {
+function successTournamentGet(tournament) {
     return {
         type: SUCCESS_TOURNAMENT_GET,
         status: 'success',
@@ -212,7 +212,7 @@ function successFetchTournament(tournament) {
     }
 }
 
-function failFetchTournament(error) {
+function failTournamentGet(error) {
     return {
         type: FAIL_TOURNAMENT_GET,
         status: 'fail',
@@ -220,7 +220,7 @@ function failFetchTournament(error) {
     }
 }
 
-export const tournamentGet = (tournamentHash, successCallback) => {
+export const tournamentGet = (tournamentHash) => {
     return function (dispatch, getState) {
 
         const state = getState();
@@ -237,21 +237,20 @@ export const tournamentGet = (tournamentHash, successCallback) => {
 
             if (currentTournament) {
 
-                dispatch(startFetchTournament(tournamentHash))
-                dispatch(successFetchTournament(currentTournament));
+                dispatch(startTournamentGet(tournamentHash))
+                dispatch(successTournamentGet(currentTournament));
 
             } else {
 
-                dispatch(startFetchTournament(tournamentHash))
+                dispatch(startTournamentGet(tournamentHash))
 
                 fetch(`/server/tournament/${tournamentHash}`)
                     .then(response => response.json())
                     .then(tournament => {
-                        dispatch(successFetchTournament(tournament.tournament))
-                        successCallback(dispatch, tournament.tournament);
+                        dispatch(successTournamentGet(tournament.tournament))
                     })
                     .catch(error => {
-                        dispatch(failFetchTournament(error))
+                        dispatch(failTournamentGet(error))
                     });
 
             }

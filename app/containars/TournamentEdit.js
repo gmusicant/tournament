@@ -4,7 +4,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import { Field, reduxForm } from 'redux-form';
-import { createTournament, updateTournament, deleteTournament, tournamentGet } from '../actions/tournaments'
+import { tournamentCreate, tournamentUpdate, tournamentDelete, tournamentGet } from '../actions/tournaments'
 import TournamentForm from '../components/TournamentForm'
 
 const cancelButton = (event) => {
@@ -23,26 +23,26 @@ class TournamentEdit extends Component {
     }
 
     render() {
-        const { handleSubmit, createTournament, updateTournament, params, deleteTournament, currentTournament, dispatch } = this.props
+        const { handleSubmit, tournamentCreate, tournamentUpdate, params, tournamentDelete, currentTournament, dispatch } = this.props
 
         const saveTournament = (tournament) => {
 
             if (_.isEmpty(currentTournament))
-                dispatch(createTournament(tournament));
+                dispatch(tournamentCreate(tournament));
             else
-                dispatch(updateTournament(tournament));
+                dispatch(tournamentUpdate(tournament));
 
             browserHistory.push(`/client`);
         };
 
-        const deleteTournamentWrapped = (hash, event) => {
+        const tournamentDeleteWrapped = (hash, event) => {
             event.preventDefault();
-            dispatch(deleteTournament(hash));
+            dispatch(tournamentDelete(hash));
             browserHistory.push(`/client`);
         }
 
         return (
-            <TournamentForm init handleSubmit={handleSubmit} cancelButton={cancelButton} deleteButton={deleteTournamentWrapped} saveTournament={saveTournament} tournament={currentTournament} deleteTournament={deleteTournamentWrapped} />
+            <TournamentForm init handleSubmit={handleSubmit} cancelButton={cancelButton} deleteButton={tournamentDeleteWrapped} saveTournament={saveTournament} tournament={currentTournament} />
           )
     }
 }
@@ -61,6 +61,6 @@ export default connect(
     }
   },
   () => {
-    return { createTournament, updateTournament, cancelButton, deleteTournament, tournamentGet }
+    return { tournamentCreate, tournamentUpdate, cancelButton, tournamentDelete, tournamentGet }
   }
 )(TournamentEditConst)
