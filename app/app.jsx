@@ -11,6 +11,7 @@ import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
 import count from './reducers/count'
 import tournaments from './reducers/tournaments'
 import teams from './reducers/teams'
+import rounds from './reducers/rounds'
 
 
 import App from './components/App'
@@ -18,13 +19,14 @@ import Tournaments from './containars/Tournaments'
 import TournamentEdit from './containars/TournamentEdit'
 import Teams from './containars/Teams'
 import TeamEdit from './containars/TeamEdit'
-import Games from './components/Games'
+import Games from './containars/Games'
 import Results from './components/Results'
 
 const reducer = combineReducers({
   count,
   tournaments,
   teams,
+  rounds,
   routing: routerReducer,
   form: formReducer
 })
