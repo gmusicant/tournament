@@ -4,6 +4,9 @@ var bodyParser = require('body-parser')
 var cookieParser = require('cookie-parser')
 var multer = require('multer');
 var ejs = require('ejs');
+var mongoose = require('mongoose');
+
+module.exports = function() {
 
 /* global variables */
 
@@ -11,7 +14,9 @@ var app = express();
 
 /* pre configure */
 
-app.set('port', (process.env.PORT || 5000));
+var port = (process.env.PORT || 5000);
+
+app.set('port', port);
 app.set('view engine', 'ejs');
 app.use('/static', express.static('public')); // set up public foder
 app.use('/assets', express.static('assets')); // set up public foder
@@ -829,4 +834,19 @@ _.forEach(routes, function(routes) {
 
 /* server run */
 
-module.exports = app;
+
+
+/* db connect and schema */
+
+var DB_USERNAME = process.env.DB_USERNAME || require('./../constants').DB_USERNAME;
+var DB_PASSWORD = process.env.DB_PASSWORD || require('./../constants').DB_PASSWORD;
+var DB_URI = 'mongodb://'+ DB_USERNAME +':'+ DB_PASSWORD +'@ds013559.mlab.com:13559/tornament';
+var db = mongoose.connect(DB_URI);
+
+
+    app.listen(port, function () {
+        console.log('Example app listening on port ' + port + '!');
+    });
+};
+
+

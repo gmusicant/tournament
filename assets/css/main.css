@@ -38,3 +38,33 @@
         display: none;
     }
 }
+
+.game-border-rouded {
+    padding: 5px;
+}
+
+.game-border-rouded .sub-level{
+    border: 1px solid #CCC;
+    border-radius: 10px;
+    padding: 5px;
+    text-align: center;
+    line-height: 38px;
+}
+
+.field-number {
+    text-align: center;
+    width: 38px;
+    height: 38px;
+    padding: 4px 0;
+}
+
+.sub-field-number {
+    border: 1px solid #CCC;
+    border-radius: 30px;
+    width: 30px;
+    height: 30px;
+    overflow: hidden;
+    line-height: 30px;
+    font-size: 12px;
+    text-align: center;
+    font-weight: bold;

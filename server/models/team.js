@@ -9,7 +9,7 @@ var teamAutoincrement = 'team';
 var teamAutoincrementInTournament = 'team.tournament:';
 
 var teamModel = {};
- _.assignIn(teamModel, teamDBModel);
+ _.extend(teamModel, teamDBModel);
 
 /* extend model here */
 
