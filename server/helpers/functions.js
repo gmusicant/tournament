@@ -1,6 +1,7 @@
 var _ = require('lodash');
 var fs = require('fs');
-var hashids = new require('hashids')('anton123123', 3, 'qwertyuiopasdfghjklzxcvbnm1234567890');
+var Hashids = require('hashids');
+var hashids = new Hashids('anton123123', 3, 'qwertyuiopasdfghjklzxcvbnm1234567890');
 
 function treeChoises(collection, platWith, level, isReadOnly) {
 
